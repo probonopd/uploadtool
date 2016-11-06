@@ -1,8 +1,6 @@
 # uploadtool
-Upload builds to GitHub Releases easily
 
-## Purpose
-Super simple uploading of continuous builds (each push) to GitHub Releases.
+Super simple uploading of continuous builds (each push) to GitHub Releases. If this is not the easiest way to upload continuous builds to GitHub Releases, then it is a bug.
 
 ## Usage
 
