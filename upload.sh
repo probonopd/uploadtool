@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RELEASE_NAME="latest"
+RELEASE_NAME="continuous" # Do not use "latest" as it is reserved by GitHub
 FULLNAME=SOME_FILE_NAME
 
 if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
@@ -18,18 +18,22 @@ if [ ! -z "$TRAVIS_REPO_SLUG" ] ; then
   fi
 else
   # We are not running on Travis CI
-  echo "Not running on Travis CI, this is currently not supported"
-  REPO_SLUG="probonopd/uploadtool"
+  echo "Not running on Travis CI"
+  if [ -z "$REPO_SLUG" ] ; then
+    read -s -p "Repo Slug (GitHub and Travis CI username/reponame): " REPO_SLUG
+  fi
   if [ -z "$GITHUB_TOKEN" ] ; then
     read -s -p "Token (https://github.com/settings/tokens): " GITHUB_TOKEN
   fi
 fi
 
-delete_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
+echo "Delete the release..."
 
-#delete_url=$(curl -GET --silent \
-#    --header "Authorization: token ${GITHUB_TOKEN}" \
-#    "${tag_url}" | grep '"url":' | head -n 1 | cut -d '"' -f 4 )
+release_infos=$(curl -GET --silent \
+    --header "Authorization: token ${GITHUB_TOKEN}" \
+    "https://api.github.com/repos/probonopd/uploadtool/releases")
+
+delete_url=$(echo "$release_infos" | grep '"tag_name": "continuous"' -C 5 | grep '"url":' | head -n 1 | cut -d '"' -f 4)
 
 echo "delete_url: $delete_url"
 
@@ -37,12 +41,34 @@ curl -XDELETE --silent \
     --header "Authorization: token ${GITHUB_TOKEN}" \
     "${delete_url}"
 
-release_url="https://api.github.com/repos/$REPO_SLUG/releases/$RELEASE_NAME"
-curl -H "Authorization: token ${GITHUB_TOKEN}" \
-     --data '{"tag_name": "'"$RELEASE_NAME"'","target_commitish": "master","name": "'"$RELEASE_NAME"'","body": "'"$RELEASE_NAME"'","draft": false,"prerelease": true}' "https://api.github.com/repos/$REPO_SLUG/releases"
+echo "Delete the tag as well..."
 
-curl -H "Authorization: token ${GITHUB_TOKEN}" \
-     -H "Accept: application/vnd.github.manifold-preview" \
-     -H "Content-Type: application/octet-stream" \
-     --data-binary @$FULLNAME \
-     "https://uploads.github.com/repos/$REPO_SLUG/releases/$RELEASE_NAME/assets?name=$FULLNAME"
+sleep 2
+
+delete_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
+
+echo "delete_url: $delete_url"
+
+curl -XDELETE --silent \
+    --header "Authorization: token ${GITHUB_TOKEN}" \
+    "${delete_url}"
+
+echo "Create release..."
+
+release_infos=$(curl -H "Authorization: token ${GITHUB_TOKEN}" \
+     --data '{"tag_name": "'"$RELEASE_NAME"'","target_commitish": "master","name": "'"Continuous build"'","body": "Each commit from https://travis-ci.org/'"$REPO_SLUG"' gets uploaded here","draft": false,"prerelease": true}' "https://api.github.com/repos/$REPO_SLUG/releases")
+
+upload_url=$(echo "$release_infos" | grep '"tag_name": "continuous"' -C 5 | grep '"upload_url":' | head -n 1 | cut -d '"' -f 4 | cut -d '{' -f 1)
+echo "upload_url: $upload_url"
+
+echo "Upload binaries to the release..."
+
+for FILE in $@ ; do
+  FULLNAME="${FILE}"
+  BASENAME="$(basename "${FILE}")"
+  curl -H "Authorization: token ${GITHUB_TOKEN}" \
+       -H "Accept: application/vnd.github.manifold-preview" \
+       -H "Content-Type: application/octet-stream" \
+       --data-binary @$FULLNAME \
+       "$upload_url?name=$BASENAME"
+done
