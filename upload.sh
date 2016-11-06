@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set +x # Do not leak information
+
 RELEASE_NAME="continuous" # Do not use "latest" as it is reserved by GitHub
 FULLNAME=SOME_FILE_NAME
 
@@ -12,7 +14,7 @@ if [ ! -z "$TRAVIS_REPO_SLUG" ] ; then
   # We are running on Travis CI
   REPO_SLUG="$TRAVIS_REPO_SLUG"
   if [ -z "$GITHUB_TOKEN" ] ; then
-    echo "$GITHUB_TOKEN missing, please set it in the Travis CI settings of this project"
+    echo "\$GITHUB_TOKEN missing, please set it in the Travis CI settings of this project"
     echo "You can get one from https://github.com/settings/tokens"
     exit 1
   fi
