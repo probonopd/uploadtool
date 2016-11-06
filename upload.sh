@@ -29,6 +29,10 @@ fi
 
 echo "Delete the release..."
 
+# FIXME: It is weird that there is no
+# https://api.github.com/repos/$REPO_SLUG/releases/$RELEASENAME
+# or is there?
+
 release_infos=$(curl -GET --silent \
     --header "Authorization: token ${GITHUB_TOKEN}" \
     "https://api.github.com/repos/probonopd/uploadtool/releases")
