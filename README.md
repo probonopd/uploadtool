@@ -16,4 +16,10 @@ Upon each run, this script will _delete_ any pre-existing release and tag with t
   - ls -lh out/* # Assuming you have some files in out/ that you would like to upload
   - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
   - bash ./upload.sh out/*
+  
+branches:
+  except:
+    - # Do not build tags that we create when we upload to GitHub Releases
+    - /^(?i:continuous)$/
+
  ```
