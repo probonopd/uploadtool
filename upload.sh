@@ -35,17 +35,15 @@ release_infos=$(curl -GET --silent \
     --header "Authorization: token ${GITHUB_TOKEN}" \
     "https://api.github.com/repos/$REPO_SLUG/releases/tags/$RELEASE_NAME")
 
-delete_url=$(echo "$release_infos" | grep '"url":' | head -n 1 | cut -d '"' -f 4)
+# delete_url=$(echo "$release_infos" | grep '"url":' | head -n 1 | cut -d '"' -f 4)
 
-echo "delete_url: $delete_url"
+# echo "delete_url: $delete_url"
 
 curl -XDELETE --silent \
     --header "Authorization: token ${GITHUB_TOKEN}" \
-    "${delete_url}"
+    "https://api.github.com/repos/$REPO_SLUG/releases/tags/$RELEASE_NAME"
 
 echo "Delete the tag as well..."
-
-sleep 2
 
 delete_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
 
