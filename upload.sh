@@ -86,9 +86,12 @@ for FILE in $@ ; do
        -H "Content-Type: application/octet-stream" \
        --data-binary @$FULLNAME \
        "$upload_url?name=$BASENAME"
+  echo ""
 done
 
 echo "Publish the release..."
 
 release_infos=$(curl -H "Authorization: token ${GITHUB_TOKEN}" \
      --data '{"draft": false}' "$release_url")
+
+echo "$release_infos"
