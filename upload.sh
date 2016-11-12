@@ -31,15 +31,11 @@ fi
 
 echo "Delete the release..."
 
-# FIXME: It is weird that there is no
-# https://api.github.com/repos/$REPO_SLUG/releases/$RELEASENAME
-# or is there?
-
 release_infos=$(curl -GET --silent \
     --header "Authorization: token ${GITHUB_TOKEN}" \
-    "https://api.github.com/repos/$REPO_SLUG/releases")
+    "https://api.github.com/repos/$REPO_SLUG/releases/tags/$RELEASE_NAME")
 
-delete_url=$(echo "$release_infos" | grep '"tag_name": "continuous"' -C 5 | grep '"url":' | head -n 1 | cut -d '"' -f 4)
+delete_url=$(echo "$release_infos" | grep '"url":' | head -n 1 | cut -d '"' -f 4)
 
 echo "delete_url: $delete_url"
 
