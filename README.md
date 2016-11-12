@@ -9,7 +9,7 @@ Upon each run, this script will _delete_ any pre-existing release and tag with t
  - On https://github.com/settings/tokens, click on "Generate new token" and generate a token with at least the `public_repo`, `repo:status`, and `repo_deployment` scopes
  - On Travis CI, go to the settings of your project at `https://travis-ci.org/yourusername/yourrepository/settings`
  - Under "Environment Variables", add key `GITHUB_TOKEN` and the token you generated above as the value. Make sure that "Display value in build log" is set to "OFF"
- - In the `.travis.yml` of your GitHub repository, add something like this:
+ - In the `.travis.yml` of your GitHub repository, add something like this (assuming the build artifacts to be uploaded are in out/):
  
 ```
 after_success:
