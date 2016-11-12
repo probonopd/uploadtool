@@ -70,8 +70,11 @@ fi
 release_infos=$(curl -H "Authorization: token ${GITHUB_TOKEN}" \
      --data '{"tag_name": "'"$RELEASE_NAME"'","target_commitish": "'"$TRAVIS_BRANCH"'","name": "'"Continuous build"'","body": "'"$BODY"'","draft": false,"prerelease": true}' "https://api.github.com/repos/$REPO_SLUG/releases")
 
-upload_url=$(echo "$release_infos" | grep '"tag_name": "continuous"' -C 5 | grep '"upload_url":' | head -n 1 | cut -d '"' -f 4 | cut -d '{' -f 1)
+upload_url=$(echo "$release_infos"| grep '"upload_url":' | head -n 1 | cut -d '"' -f 4 | cut -d '{' -f 1)
 echo "upload_url: $upload_url"
+
+release_url=$(echo "$release_infos"| grep '"url":' | head -n 1 | cut -d '"' -f 4 | cut -d '{' -f 1)
+echo "release_url: $release_url"
 
 echo "Upload binaries to the release..."
 
@@ -84,3 +87,8 @@ for FILE in $@ ; do
        --data-binary @$FULLNAME \
        "$upload_url?name=$BASENAME"
 done
+
+echo "Publish the release..."
+
+release_infos=$(curl -H "Authorization: token ${GITHUB_TOKEN}" \
+     --data '{"draft": false}' "$release_url")
