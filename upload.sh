@@ -37,7 +37,7 @@ echo "Delete the release..."
 
 release_infos=$(curl -GET --silent \
     --header "Authorization: token ${GITHUB_TOKEN}" \
-    "https://api.github.com/repos/probonopd/uploadtool/releases")
+    "https://api.github.com/repos/$REPO_SLUG/releases")
 
 delete_url=$(echo "$release_infos" | grep '"tag_name": "continuous"' -C 5 | grep '"url":' | head -n 1 | cut -d '"' -f 4)
 
