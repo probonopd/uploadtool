@@ -7,7 +7,7 @@ FULLNAME=SOME_FILE_NAME
 
 if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
   echo "Release uploading disabled for pull requests, TODO: Implement https://transfer.sh/ uploading for these"
-  exit 1
+  exit 0
 fi
 
 if [ ! -z "$TRAVIS_REPO_SLUG" ] ; then
