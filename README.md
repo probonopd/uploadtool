@@ -1,4 +1,4 @@
-# uploadtool
+# uploadtool [![Build Status](https://travis-ci.org/probonopd/uploadtool.svg?branch=master)](https://travis-ci.org/probonopd/uploadtool)
 
 Super simple uploading of continuous builds (each push) to GitHub Releases. If this is not the easiest way to upload continuous builds to GitHub Releases, then it is a bug.
 
