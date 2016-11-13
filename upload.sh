@@ -28,15 +28,8 @@ else
     read -s -p "Token (https://github.com/settings/tokens): " GITHUB_TOKEN
   fi
 fi
-
-echo "Delete the release..."
-delete_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
-echo "delete_url: $delete_url"
-curl -XDELETE \
-    --header "Authorization: token ${GITHUB_TOKEN}" \
-    "${delete_url}"
     
-echo "Delete the tag..."
+echo "Delete the release..."
 delete_url="https://api.github.com/repos/$REPO_SLUG/releases/tags/$RELEASE_NAME"
 echo "delete_url: $delete_url"
 curl -XDELETE \
@@ -48,6 +41,13 @@ curl -GET \
     --header "Authorization: token ${GITHUB_TOKEN}" \
     "$delete_url"
 
+echo "Delete the tag..."
+delete_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
+echo "delete_url: $delete_url"
+curl -XDELETE \
+    --header "Authorization: token ${GITHUB_TOKEN}" \
+    "${delete_url}"
+    
 echo "Create release..."
 
 if [ -z "$TRAVIS_BRANCH" ] ; then
