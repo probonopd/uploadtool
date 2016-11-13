@@ -49,9 +49,11 @@ delete_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
 
 echo "delete_url: $delete_url"
 
-curl -XDELETE --silent \
+RESPONSE=$(curl -XDELETE \
     --header "Authorization: token ${GITHUB_TOKEN}" \
-    "${delete_url}"
+    "${delete_url}")
+
+echo "$RESPONSE"
 
 echo "Create release..."
 
