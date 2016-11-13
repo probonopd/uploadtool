@@ -30,30 +30,18 @@ else
 fi
 
 echo "Delete the release..."
-
-release_infos=$(curl -GET --silent \
-    --header "Authorization: token ${GITHUB_TOKEN}" \
-    "https://api.github.com/repos/$REPO_SLUG/releases/tags/$RELEASE_NAME")
-
-# delete_url=$(echo "$release_infos" | grep '"url":' | head -n 1 | cut -d '"' -f 4)
-
-# echo "delete_url: $delete_url"
-
-curl -XDELETE --silent \
-    --header "Authorization: token ${GITHUB_TOKEN}" \
-    "https://api.github.com/repos/$REPO_SLUG/releases/tags/$RELEASE_NAME"
-
-echo "Delete the tag as well..."
-
 delete_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
-
 echo "delete_url: $delete_url"
-
-RESPONSE=$(curl -XDELETE \
+curl -XDELETE \
     --header "Authorization: token ${GITHUB_TOKEN}" \
-    "${delete_url}")
-
-echo "$RESPONSE"
+    "${delete_url}"
+    
+echo "Delete the tag as well..."
+delete_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
+echo "delete_url: $delete_url"
+curl -XDELETE \
+    --header "Authorization: token ${GITHUB_TOKEN}" \
+    "${delete_url}"
 
 echo "Create release..."
 
