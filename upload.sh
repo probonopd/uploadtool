@@ -37,7 +37,7 @@ curl -XDELETE \
     "${delete_url}"
     
 echo "Delete the tag as well..."
-delete_url="https://api.github.com/repos/$REPO_SLUG/git/tags/$RELEASE_NAME"
+delete_url="https://api.github.com/repos/$REPO_SLUG/releases/tags/$RELEASE_NAME"
 echo "delete_url: $delete_url"
 curl -XDELETE \
     --header "Authorization: token ${GITHUB_TOKEN}" \
