@@ -38,8 +38,7 @@ curl -XDELETE \
 
 echo "Checking if release with the same name is still there..."
 curl -GET \
-    --header "Authorization: token ${GITHUB_TOKEN}" \
-    "$delete_url"
+    "https://api.github.com/repos/$REPO_SLUG/releases/tags/$RELEASE_NAME"
 
 echo "Delete the tag..."
 delete_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
