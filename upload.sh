@@ -43,6 +43,11 @@ curl -XDELETE \
     --header "Authorization: token ${GITHUB_TOKEN}" \
     "${delete_url}"
 
+echo "Checking if release with the same name is still there..."
+curl -GET \
+    --header "Authorization: token ${GITHUB_TOKEN}" \
+    "$delete_url"
+
 echo "Create release..."
 
 if [ -z "$TRAVIS_BRANCH" ] ; then
