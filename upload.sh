@@ -29,16 +29,27 @@ else
   fi
 fi
     
-echo "Delete the release..."
-delete_url="https://api.github.com/repos/$REPO_SLUG/releases/tags/$RELEASE_NAME"
-echo "delete_url: $delete_url"
-curl -XDELETE \
-    --header "Authorization: token ${GITHUB_TOKEN}" \
-    "${delete_url}"
+release_url="https://api.github.com/repos/$REPO_SLUG/releases/tags/$RELEASE_NAME"
+
+echo "Getting the release ID..."
+echo "release_url: $release_url"
+release_infos=$(curl -XGET --header "Authorization: token ${GITHUB_TOKEN}" "${release_url}")
+release_id=$(echo "$release_infos" | grep "\"id\":" | head -n 1 | tr -s " " | cut -f 3 -d" " | cut -f 1 -d ",")
+echo "release ID: $release_id"
+
+if [ x"$release_id" != "x" ]; then
+  delete_url="https://api.github.com/repos/$REPO_SLUG/releases/$release_id"
+  echo "Delete the release..."
+  echo "delete_url: $delete_url"
+  curl -XDELETE \
+      --header "Authorization: token ${GITHUB_TOKEN}" \
+      "${delete_url}"
+fi
 
 echo "Checking if release with the same name is still there..."
-curl -GET \
-    "https://api.github.com/repos/$REPO_SLUG/releases/tags/$RELEASE_NAME"
+echo "release_url: $release_url"
+curl -XGET --header "Authorization: token ${GITHUB_TOKEN}" \
+    "$release_url"
 
 echo "Delete the tag..."
 delete_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
@@ -46,6 +57,8 @@ echo "delete_url: $delete_url"
 curl -XDELETE \
     --header "Authorization: token ${GITHUB_TOKEN}" \
     "${delete_url}"
+
+sleep 5
     
 echo "Create release..."
 
