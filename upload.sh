@@ -6,7 +6,12 @@ RELEASE_NAME="continuous" # Do not use "latest" as it is reserved by GitHub
 FULLNAME=SOME_FILE_NAME
 
 if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
-  echo "Release uploading disabled for pull requests, TODO: Implement https://transfer.sh/ uploading for these"
+  echo "Release uploading disabled for pull requests, uploading to transfer.sh instead"
+  for FILE in $@ ; do
+    BASENAME="$(basename "${FILE}")"
+    curl --upload-file $FILE https://transfer.sh/$BASENAME
+    echo ""
+  done
   exit 0
 fi
 
