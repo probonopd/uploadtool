@@ -17,6 +17,8 @@ fi
 
 if [ ! -z "$TRAVIS_REPO_SLUG" ] ; then
   # We are running on Travis CI
+  echo "Running on Travis CI"
+  echo "TRAVIS_COMMIT: $TRAVIS_COMMIT"
   REPO_SLUG="$TRAVIS_REPO_SLUG"
   if [ -z "$GITHUB_TOKEN" ] ; then
     echo "\$GITHUB_TOKEN missing, please set it in the Travis CI settings of this project"
