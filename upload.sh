@@ -39,6 +39,7 @@ release_url="https://api.github.com/repos/$REPO_SLUG/releases/tags/$RELEASE_NAME
 echo "Getting the release ID..."
 echo "release_url: $release_url"
 release_infos=$(curl -XGET --header "Authorization: token ${GITHUB_TOKEN}" "${release_url}")
+echo "release_infos: $release_infos"
 release_id=$(echo "$release_infos" | grep "\"id\":" | head -n 1 | tr -s " " | cut -f 3 -d" " | cut -f 1 -d ",")
 echo "release ID: $release_id"
 
