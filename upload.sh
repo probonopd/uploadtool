@@ -55,7 +55,7 @@ echo "release_url: $release_url"
 
 if [ "$TRAVIS_COMMIT" != "$tag_sha" ] ; then
 
-  echo "TRAVIS_COMMIT != tag_sha, hence deleting $RELEASE_NAME...
+  echo "TRAVIS_COMMIT != tag_sha, hence deleting $RELEASE_NAME..."
   
   if [ x"$release_id" != "x" ]; then
     delete_url="https://api.github.com/repos/$REPO_SLUG/releases/$release_id"
