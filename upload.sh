@@ -39,6 +39,8 @@ fi
 tag_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
 tag_infos=$(curl -XGET --header "Authorization: token ${GITHUB_TOKEN}" "${tag_url}")
 echo "tag_infos: $tag_infos"
+tag_sha=$(echo "$tag_infos" | grep '"sha":' | head -n 1 | cut -d '"' -f 4 | cut -d '{' -f 1)
+echo "tag_sha: $tag_sha"
 
 release_url="https://api.github.com/repos/$REPO_SLUG/releases/tags/$RELEASE_NAME"
 echo "Getting the release ID..."
@@ -47,30 +49,40 @@ release_infos=$(curl -XGET --header "Authorization: token ${GITHUB_TOKEN}" "${re
 echo "release_infos: $release_infos"
 release_id=$(echo "$release_infos" | grep "\"id\":" | head -n 1 | tr -s " " | cut -f 3 -d" " | cut -f 1 -d ",")
 echo "release ID: $release_id"
+upload_url=$(echo "$release_infos" | grep '"upload_url":' | head -n 1 | cut -d '"' -f 4 | cut -d '{' -f 1)
+echo "upload_url: $upload_url"
+release_url=$(echo "$release_infos" | grep '"url":' | head -n 1 | cut -d '"' -f 4 | cut -d '{' -f 1)
+echo "release_url: $release_url"
 
-if [ x"$release_id" != "x" ]; then
-  delete_url="https://api.github.com/repos/$REPO_SLUG/releases/$release_id"
-  echo "Delete the release..."
+if [ "$TRAVIS_COMMIT" != "$tag_sha" ] ; then
+
+  echo "TRAVIS_COMMIT != tag_sha, hence deleting $RELEASE_NAME...
+  
+  if [ x"$release_id" != "x" ]; then
+    delete_url="https://api.github.com/repos/$REPO_SLUG/releases/$release_id"
+    echo "Delete the release..."
+    echo "delete_url: $delete_url"
+    curl -XDELETE \
+        --header "Authorization: token ${GITHUB_TOKEN}" \
+        "${delete_url}"
+  fi
+
+  # echo "Checking if release with the same name is still there..."
+  # echo "release_url: $release_url"
+  # curl -XGET --header "Authorization: token ${GITHUB_TOKEN}" \
+  #     "$release_url"
+
+  echo "Delete the tag..."
+  delete_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
   echo "delete_url: $delete_url"
   curl -XDELETE \
       --header "Authorization: token ${GITHUB_TOKEN}" \
       "${delete_url}"
-fi
 
-echo "Checking if release with the same name is still there..."
-echo "release_url: $release_url"
-curl -XGET --header "Authorization: token ${GITHUB_TOKEN}" \
-    "$release_url"
+  # sleep 5
+  
+fi # if [ "$TRAVIS_COMMIT" != "$tag_sha" ]
 
-echo "Delete the tag..."
-delete_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
-echo "delete_url: $delete_url"
-curl -XDELETE \
-    --header "Authorization: token ${GITHUB_TOKEN}" \
-    "${delete_url}"
-
-sleep 5
-    
 echo "Create release..."
 
 if [ -z "$TRAVIS_BRANCH" ] ; then
@@ -88,9 +100,11 @@ release_infos=$(curl -H "Authorization: token ${GITHUB_TOKEN}" \
 
 echo "$release_infos"
 
+unset upload_url
 upload_url=$(echo "$release_infos" | grep '"upload_url":' | head -n 1 | cut -d '"' -f 4 | cut -d '{' -f 1)
 echo "upload_url: $upload_url"
 
+unset release_url
 release_url=$(echo "$release_infos" | grep '"url":' | head -n 1 | cut -d '"' -f 4 | cut -d '{' -f 1)
 echo "release_url: $release_url"
 
