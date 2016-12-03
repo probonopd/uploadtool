@@ -1,5 +1,10 @@
 lang: c
 
+# Simulate two architectures (only used for testing here!)
+env:
+  - ARCH=one
+  - ARCH=two
+ 
 script:
   - bash ./upload.sh upload.sh
 
