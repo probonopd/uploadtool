@@ -89,7 +89,7 @@ if [ -z "$TRAVIS_BRANCH" ] ; then
 fi
 
 if [ ! -z "$TRAVIS_JOB_ID" ] ; then
-  BODY="Travis CI build log: https://api.travis-ci.org/jobs/$TRAVIS_JOB_ID/log.txt?deansi=true"
+  BODY="Travis CI build log: https://api.travis-ci.org/builds/$TRAVIS_BUILD_ID/log.txt?deansi=true"
 else
   BODY=""
 fi
