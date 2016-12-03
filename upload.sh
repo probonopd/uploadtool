@@ -118,9 +118,11 @@ for FILE in $@ ; do
   echo ""
 done
 
-echo "Publish the release..."
+if [ "$TRAVIS_COMMIT" != "$tag_sha" ] ; then
+  echo "Publish the release..."
 
-release_infos=$(curl -H "Authorization: token ${GITHUB_TOKEN}" \
-     --data '{"draft": false}' "$release_url")
+  release_infos=$(curl -H "Authorization: token ${GITHUB_TOKEN}" \
+       --data '{"draft": false}' "$release_url")
 
-echo "$release_infos"
+  echo "$release_infos"
+fi # if [ "$TRAVIS_COMMIT" != "$tag_sha" ]
