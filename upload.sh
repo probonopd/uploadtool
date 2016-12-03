@@ -34,7 +34,7 @@ else
   fi
 fi
 
-tag_url="https://api.github.com/repos/REPO_SLUG/git/refs/tags/$RELEASE_NAME"
+tag_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
 tag_infos=$(curl -XGET --header "Authorization: token ${GITHUB_TOKEN}" "${tag_url}")
 echo "tag_infos: $tag_infos"
 
