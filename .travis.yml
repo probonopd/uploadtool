@@ -6,7 +6,8 @@ env:
   - ARCH=two
  
 script:
-  - bash ./upload.sh upload.sh
+  - cp upload.sh upload-$ARCH.sh
+  - bash ./upload.sh upload-$ARCH.sh
 
 branches:
   except:
