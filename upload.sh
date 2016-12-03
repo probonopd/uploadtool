@@ -78,34 +78,32 @@ if [ "$TRAVIS_COMMIT" != "$tag_sha" ] ; then
       --header "Authorization: token ${GITHUB_TOKEN}" \
       "${delete_url}"
 
-  # sleep 5
-  
+  echo "Create release..."
+
+  if [ -z "$TRAVIS_BRANCH" ] ; then
+    TRAVIS_BRANCH="master"
+  fi
+
+  if [ ! -z "$TRAVIS_JOB_ID" ] ; then
+    BODY="Travis CI build log: https://travis-ci.org/$REPO_SLUG/builds/$TRAVIS_BUILD_ID/"
+  else
+    BODY=""
+  fi
+
+  release_infos=$(curl -H "Authorization: token ${GITHUB_TOKEN}" \
+       --data '{"tag_name": "'"$RELEASE_NAME"'","target_commitish": "'"$TRAVIS_BRANCH"'","name": "'"Continuous build"'","body": "'"$BODY"'","draft": false,"prerelease": true}' "https://api.github.com/repos/$REPO_SLUG/releases")
+
+  echo "$release_infos"
+
+  unset upload_url
+  upload_url=$(echo "$release_infos" | grep '"upload_url":' | head -n 1 | cut -d '"' -f 4 | cut -d '{' -f 1)
+  echo "upload_url: $upload_url"
+
+  unset release_url
+  release_url=$(echo "$release_infos" | grep '"url":' | head -n 1 | cut -d '"' -f 4 | cut -d '{' -f 1)
+  echo "release_url: $release_url"
+
 fi # if [ "$TRAVIS_COMMIT" != "$tag_sha" ]
-
-echo "Create release..."
-
-if [ -z "$TRAVIS_BRANCH" ] ; then
-  TRAVIS_BRANCH="master"
-fi
-
-if [ ! -z "$TRAVIS_JOB_ID" ] ; then
-  BODY="Travis CI build log: https://travis-ci.org/$REPO_SLUG/builds/$TRAVIS_BUILD_ID/"
-else
-  BODY=""
-fi
-
-release_infos=$(curl -H "Authorization: token ${GITHUB_TOKEN}" \
-     --data '{"tag_name": "'"$RELEASE_NAME"'","target_commitish": "'"$TRAVIS_BRANCH"'","name": "'"Continuous build"'","body": "'"$BODY"'","draft": false,"prerelease": true}' "https://api.github.com/repos/$REPO_SLUG/releases")
-
-echo "$release_infos"
-
-unset upload_url
-upload_url=$(echo "$release_infos" | grep '"upload_url":' | head -n 1 | cut -d '"' -f 4 | cut -d '{' -f 1)
-echo "upload_url: $upload_url"
-
-unset release_url
-release_url=$(echo "$release_infos" | grep '"url":' | head -n 1 | cut -d '"' -f 4 | cut -d '{' -f 1)
-echo "release_url: $release_url"
 
 echo "Upload binaries to the release..."
 
