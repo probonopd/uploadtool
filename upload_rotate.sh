@@ -2,7 +2,8 @@
 
 set +x # Do not leak information
 
-RELEASE_NAME="continuous" # Do not use "latest" as it is reserved by GitHub
+RELEASE_NAME="$1" # Do not use "latest" as it is reserved by GitHub
+shift
 FULLNAME=SOME_FILE_NAME
 
 #__________________________________________________________
