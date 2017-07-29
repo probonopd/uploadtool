@@ -11,6 +11,7 @@ if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
     curl --upload-file $FILE https://transfer.sh/$BASENAME
     echo ""
   done
+  sha256sum $@
   exit 0
 fi
 
@@ -117,6 +118,8 @@ for FILE in $@ ; do
        "$upload_url?name=$BASENAME"
   echo ""
 done
+
+sha256sum $@
 
 if [ "$TRAVIS_COMMIT" != "$tag_sha" ] ; then
   echo "Publish the release..."
