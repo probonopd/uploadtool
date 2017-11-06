@@ -2,6 +2,27 @@
 
 set +x # Do not leak information
 
+rawurlencode() {
+  local string="$1"
+  local strlen=${#string}
+  local encoded=""
+  local pos c o
+
+  for (( pos=0 ; pos<strlen ; pos++ )); do
+     c=${string:$pos:1}
+     case "$c" in
+        [-_.~a-zA-Z0-9])
+            o="$c"
+            ;;
+        * )
+            printf -v o '%%%02x' "'$c"
+            ;;
+     esac
+     encoded+="$o"
+  done
+  echo "$encoded"
+}
+
 RELEASE_NAME="continuous" # Do not use "latest" as it is reserved by GitHub
 
 if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
@@ -98,7 +119,7 @@ EOF
   fi
 
   release_infos=$(curl -H "Authorization: token ${GITHUB_TOKEN}" \
-       --data '{"tag_name": "'"$RELEASE_NAME"'","target_commitish": "'"$TRAVIS_BRANCH"'","name": "'"Continuous build"'","body": "'"$BODY"'","draft": false,"prerelease": true}' "https://api.github.com/repos/$REPO_SLUG/releases")
+       --data '{"tag_name": "'"$RELEASE_NAME"'","target_commitish": "'"$TRAVIS_BRANCH"'","name": "'"Continuous build"'","body": "'$(rawurlencode "$BODY")'","draft": false,"prerelease": true}' "https://api.github.com/repos/$REPO_SLUG/releases")
 
   echo "$release_infos"
 
