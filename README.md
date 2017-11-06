@@ -15,7 +15,7 @@ Upon each run, this script will _delete_ any pre-existing release and tag with t
 after_success:
   - ls -lh out/* # Assuming you have some files in out/ that you would like to upload
   - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
-  - bash ./upload.sh out/*
+  - bash upload.sh out/*
   
 branches:
   except:
