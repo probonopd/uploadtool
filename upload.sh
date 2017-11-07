@@ -116,6 +116,11 @@ if [ "$TRAVIS_COMMIT" != "$tag_sha" ] ; then
 
 fi # if [ "$TRAVIS_COMMIT" != "$tag_sha" ]
 
+if [ -z "$release_url" ] ; then
+	echo "Cannot figure out the release URL for $RELEASE_NAME"
+	exit 1
+fi
+
 echo "Upload binaries to the release..."
 
 for FILE in $@ ; do
