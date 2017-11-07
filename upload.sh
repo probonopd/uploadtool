@@ -2,7 +2,15 @@
 
 set +x # Do not leak information
 
-RELEASE_NAME="continuous" # Do not use "latest" as it is reserved by GitHub
+# The calling script (usually .travis.yml) can set a suffix to be used for
+# the tag and release name. This way it is possible to have a release for
+# the output of the CI/CD pipeline (marked as 'continuous') and also test
+# builds for other branches.
+if [ ! -z $UPLOADTOOL_SUFFIX ] ; then
+  RELEASE_NAME="continuous-$UPLOADTOOL_SUFFIX"
+else
+  RELEASE_NAME="continuous" # Do not use "latest" as it is reserved by GitHub
+fi
 
 if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
   echo "Release uploading disabled for pull requests, uploading to transfer.sh instead"
