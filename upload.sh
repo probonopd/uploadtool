@@ -8,8 +8,10 @@ set +x # Do not leak information
 # builds for other branches.
 if [ ! -z $UPLOADTOOL_SUFFIX ] ; then
   RELEASE_NAME="continuous-$UPLOADTOOL_SUFFIX"
+  RELEASE_TITLE="Continuous build ($UPLOADTOOL_SUFFIX)"
 else
   RELEASE_NAME="continuous" # Do not use "latest" as it is reserved by GitHub
+  RELEASE_TITLE="Continuous build"
 fi
 
 if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
@@ -100,7 +102,7 @@ if [ "$TRAVIS_COMMIT" != "$tag_sha" ] ; then
   fi
 
   release_infos=$(curl -H "Authorization: token ${GITHUB_TOKEN}" \
-       --data '{"tag_name": "'"$RELEASE_NAME"'","target_commitish": "'"$TRAVIS_BRANCH"'","name": "'"Continuous build"'","body": "'"$BODY"'","draft": false,"prerelease": true}' "https://api.github.com/repos/$REPO_SLUG/releases")
+       --data '{"tag_name": "'"$RELEASE_NAME"'","target_commitish": "'"$TRAVIS_BRANCH"'","name": "'"$RELEASE_TITLE"'","body": "'"$BODY"'","draft": false,"prerelease": true}' "https://api.github.com/repos/$REPO_SLUG/releases")
 
   echo "$release_infos"
 
