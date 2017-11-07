@@ -2,7 +2,11 @@
 
 set +x # Do not leak information
 
-RELEASE_NAME="continuous" # Do not use "latest" as it is reserved by GitHub
+if [ -z "$TRAVIS_BRANCH" ] ; then
+	RELEASE_NAME="continuous" # Do not use "latest" as it is reserved by GitHub
+else
+	RELEASE_NAME="continuous-$TRAVIS_BRANCH" # not on master, so make it its own thing
+fi
 
 if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
   echo "Release uploading disabled for pull requests, uploading to transfer.sh instead"
