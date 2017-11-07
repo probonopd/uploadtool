@@ -91,12 +91,16 @@ if [ "$TRAVIS_COMMIT" != "$tag_sha" ] ; then
   # curl -XGET --header "Authorization: token ${GITHUB_TOKEN}" \
   #     "$release_url"
 
-  echo "Delete the tag..."
-  delete_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
-  echo "delete_url: $delete_url"
-  curl -XDELETE \
-      --header "Authorization: token ${GITHUB_TOKEN}" \
-      "${delete_url}"
+  if [ "$is_prerelease" = "true" ] ; then
+    # if this is a continuous build tag, then delete the old tag
+    # in preparation for the new release
+    echo "Delete the tag..."
+    delete_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
+    echo "delete_url: $delete_url"
+    curl -XDELETE \
+        --header "Authorization: token ${GITHUB_TOKEN}" \
+        "${delete_url}"
+  fi
 
   echo "Create release..."
 
