@@ -2,6 +2,14 @@
 
 set +x # Do not leak information
 
+if command -v sha256sum >/dev/null 2>&1 ; then
+  shatool="sha256sum"
+elif command -v shasum >/dev/null 2>&1 ; then
+  shatool="shasum -a 256" # macOS fallback
+else
+  echo "Neither sha256sum nor shasum is available, cannot check hashes"
+fi
+
 # The calling script (usually .travis.yml) can set a suffix to be used for
 # the tag and release name. This way it is possible to have a release for
 # the output of the CI/CD pipeline (marked as 'continuous') and also test
@@ -30,7 +38,7 @@ if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
     curl --upload-file $FILE https://transfer.sh/$BASENAME
     echo ""
   done
-  sha256sum $@
+  $shatool $@
   exit 0
 fi
 
@@ -147,7 +155,7 @@ for FILE in $@ ; do
   echo ""
 done
 
-sha256sum $@
+$shatool $@
 
 if [ "$TRAVIS_COMMIT" != "$tag_sha" ] ; then
   echo "Publish the release..."
