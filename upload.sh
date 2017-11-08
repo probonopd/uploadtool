@@ -2,7 +2,26 @@
 
 set +x # Do not leak information
 
-RELEASE_NAME="continuous" # Do not use "latest" as it is reserved by GitHub
+# The calling script (usually .travis.yml) can set a suffix to be used for
+# the tag and release name. This way it is possible to have a release for
+# the output of the CI/CD pipeline (marked as 'continuous') and also test
+# builds for other branches.
+# If this build was triggered by a tag, call the result a Release
+if [ ! -z $UPLOADTOOL_SUFFIX ] ; then
+  if [ "$UPLOADTOOL_SUFFIX" = "$TRAVIS_TAG" ] ; then
+    RELEASE_NAME=$TRAVIS_TAG
+    RELEASE_TITLE="Release build ($TRAVIS_TAG)"
+    is_prerelease="false"
+  else
+    RELEASE_NAME="continuous-$UPLOADTOOL_SUFFIX"
+    RELEASE_TITLE="Continuous build ($UPLOADTOOL_SUFFIX)"
+    is_prerelease="true"
+  fi
+else
+  RELEASE_NAME="continuous" # Do not use "latest" as it is reserved by GitHub
+  RELEASE_TITLE="Continuous build"
+  is_prerelease="true"
+fi
 
 if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
   echo "Release uploading disabled for pull requests, uploading to transfer.sh instead"
@@ -58,7 +77,7 @@ if [ "$TRAVIS_COMMIT" != "$tag_sha" ] ; then
 
   echo "TRAVIS_COMMIT != tag_sha, hence deleting $RELEASE_NAME..."
   
-  if [ x"$release_id" != "x" ]; then
+  if [ ! -z "$release_id" ]; then
     delete_url="https://api.github.com/repos/$REPO_SLUG/releases/$release_id"
     echo "Delete the release..."
     echo "delete_url: $delete_url"
@@ -72,12 +91,16 @@ if [ "$TRAVIS_COMMIT" != "$tag_sha" ] ; then
   # curl -XGET --header "Authorization: token ${GITHUB_TOKEN}" \
   #     "$release_url"
 
-  echo "Delete the tag..."
-  delete_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
-  echo "delete_url: $delete_url"
-  curl -XDELETE \
-      --header "Authorization: token ${GITHUB_TOKEN}" \
-      "${delete_url}"
+  if [ "$is_prerelease" = "true" ] ; then
+    # if this is a continuous build tag, then delete the old tag
+    # in preparation for the new release
+    echo "Delete the tag..."
+    delete_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
+    echo "delete_url: $delete_url"
+    curl -XDELETE \
+        --header "Authorization: token ${GITHUB_TOKEN}" \
+        "${delete_url}"
+  fi
 
   echo "Create release..."
 
@@ -92,7 +115,7 @@ if [ "$TRAVIS_COMMIT" != "$tag_sha" ] ; then
   fi
 
   release_infos=$(curl -H "Authorization: token ${GITHUB_TOKEN}" \
-       --data '{"tag_name": "'"$RELEASE_NAME"'","target_commitish": "'"$TRAVIS_BRANCH"'","name": "'"Continuous build"'","body": "'"$BODY"'","draft": false,"prerelease": true}' "https://api.github.com/repos/$REPO_SLUG/releases")
+       --data '{"tag_name": "'"$RELEASE_NAME"'","target_commitish": "'"$TRAVIS_COMMIT"'","name": "'"$RELEASE_TITLE"'","body": "'"$BODY"'","draft": false,"prerelease": '$is_prerelease'}' "https://api.github.com/repos/$REPO_SLUG/releases")
 
   echo "$release_infos"
 
@@ -105,6 +128,11 @@ if [ "$TRAVIS_COMMIT" != "$tag_sha" ] ; then
   echo "release_url: $release_url"
 
 fi # if [ "$TRAVIS_COMMIT" != "$tag_sha" ]
+
+if [ -z "$release_url" ] ; then
+	echo "Cannot figure out the release URL for $RELEASE_NAME"
+	exit 1
+fi
 
 echo "Upload binaries to the release..."
 
