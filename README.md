@@ -37,3 +37,5 @@ One possible use case for this is to set up continuous builds for feature or tes
   fi
 ```
 This will create builds tagged with `continuous` for pushes / merges to `master` and with `continuous-<branch-name>` for pushes / merges to other branches.
+
+The two environment variables UPLOADTOOL_PR_BODY and UPLOADTOOL_BODY allow the calling script to customize the messages that are posted either for pull requests or merges / pushes. If these variables aren't set, generic default texts are used.
