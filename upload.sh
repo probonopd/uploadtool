@@ -27,8 +27,15 @@ if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
   echo "Release uploading disabled for pull requests, uploading to transfer.sh instead"
   for FILE in $@ ; do
     BASENAME="$(basename "${FILE}")"
-    curl --upload-file $FILE https://transfer.sh/$BASENAME
+    curl --upload-file $FILE https://transfer.sh/$BASENAME > ./uploaded-to
+    cat ./uploaded-to
     echo ""
+    review_url="https://api.github.com/repos/${TRAVIS_REPO_SLUG}/pulls/${TRAVIS_PULL_REQUEST}/reviews"
+    body="Travis CI has created build artifacts for this PR here: $(cat ./uploaded-to)\nThis link will expire 14 days from now."
+    curl -X POST \
+      --header "Authorization: token ${GITHUB_TOKEN}" \
+      --data '{"commit_id": "'"$TRAVIS_COMMIT"'","body": "'"$body"'","event": "COMMENT"}' \
+      $review_url
   done
   sha256sum $@
   exit 0
