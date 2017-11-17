@@ -39,7 +39,11 @@ if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
     cat ./uploaded-to
     echo ""
     review_url="https://api.github.com/repos/${TRAVIS_REPO_SLUG}/pulls/${TRAVIS_PULL_REQUEST}/reviews"
-    body="Travis CI has created build artifacts for this PR here: $(cat ./uploaded-to)\nThis link will expire 14 days from now."
+    if [ ! -z $UPLOADTOOL_PR_BODY ] ; then
+      body="Travis CI has created build artifacts for this PR here: $(cat ./uploaded-to)\nThis link will expire 14 days from now."
+    else
+      body="$UPLOADTOOL_PR_BODY"
+    fi
     curl -X POST \
       --header "Authorization: token ${GITHUB_TOKEN}" \
       --data '{"commit_id": "'"$TRAVIS_COMMIT"'","body": "'"$body"'","event": "COMMENT"}' \
@@ -124,7 +128,11 @@ if [ "$TRAVIS_COMMIT" != "$tag_sha" ] ; then
   fi
 
   if [ ! -z "$TRAVIS_JOB_ID" ] ; then
-    BODY="Travis CI build log: https://travis-ci.org/$REPO_SLUG/builds/$TRAVIS_BUILD_ID/"
+    if [ ! -z $UPLOADTOOL_BODY ] ; then
+      BODY="Travis CI build log: https://travis-ci.org/$REPO_SLUG/builds/$TRAVIS_BUILD_ID/"
+    else
+      BODY="$UPLOADTOOL_BODY"
+    fi
   else
     BODY=""
   fi
