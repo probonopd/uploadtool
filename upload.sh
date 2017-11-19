@@ -39,7 +39,7 @@ if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
     cat ./uploaded-to
     echo ""
     review_url="https://api.github.com/repos/${TRAVIS_REPO_SLUG}/pulls/${TRAVIS_PULL_REQUEST}/reviews"
-    if [ ! -z $UPLOADTOOL_PR_BODY ] ; then
+    if [ -z $UPLOADTOOL_PR_BODY ] ; then
       body="Travis CI has created build artifacts for this PR here: $(cat ./uploaded-to)\nThis link will expire 14 days from now."
     else
       body="$UPLOADTOOL_PR_BODY"
