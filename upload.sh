@@ -2,6 +2,11 @@
 
 set +x # Do not leak information
 
+if [ $# -eq 0 ]; then
+    echo "No artifacts to use for release, giving up."
+    exit 0
+fi
+
 if command -v sha256sum >/dev/null 2>&1 ; then
   shatool="sha256sum"
 elif command -v shasum >/dev/null 2>&1 ; then
