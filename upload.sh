@@ -38,26 +38,27 @@ fi
 
 if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
   echo "Release uploading disabled for pull requests, uploading to transfer.sh instead"
+  rm -f ./uploaded-to
   for FILE in $@ ; do
     BASENAME="$(basename "${FILE}")"
-    curl --upload-file $FILE https://transfer.sh/$BASENAME > ./uploaded-to
-    cat ./uploaded-to
-    echo ""
-    review_url="https://api.github.com/repos/${TRAVIS_REPO_SLUG}/pulls/${TRAVIS_PULL_REQUEST}/reviews"
-    if [ -z $UPLOADTOOL_PR_BODY ] ; then
-      body="Travis CI has created build artifacts for this PR here:"
-    else
-      body="$UPLOADTOOL_PR_BODY"
-    fi
-    body="$body\n$(cat ./uploaded-to)\nThe link(s) will expire 14 days from now."
-    review_comment=$(curl -X POST \
-      --header "Authorization: token ${GITHUB_TOKEN}" \
-      --data '{"commit_id": "'"$TRAVIS_COMMIT"'","body": "'"$body"'","event": "COMMENT"}' \
-      $review_url)
-    if echo $review_comment | grep -q "Bad credentials" 2>/dev/null ; then
-      echo '"Bad credentials" response for --data {"commit_id": "'"$TRAVIS_COMMIT"'","body": "'"$body"'","event": "COMMENT"}'
-    fi
+    curl --upload-file $FILE https://transfer.sh/$BASENAME > ./one-upload
+    echo "$(cat ./one-upload)" # this way we get a newline
+    echo -n "$(cat ./one-upload)\n" >> ./uploaded-to # this way we get a \n but no newline
   done
+  review_url="https://api.github.com/repos/${TRAVIS_REPO_SLUG}/pulls/${TRAVIS_PULL_REQUEST}/reviews"
+  if [ -z $UPLOADTOOL_PR_BODY ] ; then
+    body="Travis CI has created build artifacts for this PR here:"
+  else
+    body="$UPLOADTOOL_PR_BODY"
+  fi
+  body="$body\n$(cat ./uploaded-to)\nThe link(s) will expire 14 days from now."
+  review_comment=$(curl -X POST \
+    --header "Authorization: token ${GITHUB_TOKEN}" \
+    --data '{"commit_id": "'"$TRAVIS_COMMIT"'","body": "'"$body"'","event": "COMMENT"}' \
+    $review_url)
+  if echo $review_comment | grep -q "Bad credentials" 2>/dev/null ; then
+    echo '"Bad credentials" response for --data {"commit_id": "'"$TRAVIS_COMMIT"'","body": "'"$body"'","event": "COMMENT"}'
+  fi
   $shatool $@
   exit 0
 fi
