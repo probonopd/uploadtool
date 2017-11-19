@@ -45,10 +45,11 @@ if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
     echo ""
     review_url="https://api.github.com/repos/${TRAVIS_REPO_SLUG}/pulls/${TRAVIS_PULL_REQUEST}/reviews"
     if [ -z $UPLOADTOOL_PR_BODY ] ; then
-      body="Travis CI has created build artifacts for this PR here: $(cat ./uploaded-to)\nThis link will expire 14 days from now."
+      body="Travis CI has created build artifacts for this PR here:"
     else
       body="$UPLOADTOOL_PR_BODY"
     fi
+    body="$body\n$(cat ./uploaded-to)\nThe link(s) will expire 14 days from now."
     review_comment=$(curl -X POST \
       --header "Authorization: token ${GITHUB_TOKEN}" \
       --data '{"commit_id": "'"$TRAVIS_COMMIT"'","body": "'"$body"'","event": "COMMENT"}' \
