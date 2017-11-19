@@ -44,10 +44,13 @@ if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
     else
       body="$UPLOADTOOL_PR_BODY"
     fi
-    curl -X POST \
+    review_comment=$(curl -X POST \
       --header "Authorization: token ${GITHUB_TOKEN}" \
       --data '{"commit_id": "'"$TRAVIS_COMMIT"'","body": "'"$body"'","event": "COMMENT"}' \
-      $review_url
+      $review_url)
+    if echo $review_comment | grep -q "Bad credentials" 2>/dev/null ; then
+      echo '"Bad credentials" response for --data {"commit_id": "'"$TRAVIS_COMMIT"'","body": "'"$body"'","event": "COMMENT"}'
+    fi
   done
   $shatool $@
   exit 0
