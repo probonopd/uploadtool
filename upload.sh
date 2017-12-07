@@ -39,11 +39,11 @@ fi
 if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
   echo "Release uploading disabled for pull requests, uploading to transfer.sh instead"
   rm -f ./uploaded-to
-  for FILE in $@ ; do
+  for FILE in "$@" ; do
     BASENAME="$(basename "${FILE}")"
-    curl --upload-file $FILE https://transfer.sh/$BASENAME > ./one-upload
+    curl --upload-file $FILE "https://transfer.sh/$BASENAME" > ./one-upload
     echo "$(cat ./one-upload)" # this way we get a newline
-    echo -n "$(cat ./one-upload)\n" >> ./uploaded-to # this way we get a \n but no newline
+    echo -n "$(cat ./one-upload)\\n" >> ./uploaded-to # this way we get a \n but no newline
   done
 #  review_url="https://api.github.com/repos/${TRAVIS_REPO_SLUG}/pulls/${TRAVIS_PULL_REQUEST}/reviews"
 #  if [ -z $UPLOADTOOL_PR_BODY ] ; then
@@ -59,7 +59,7 @@ if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
 #  if echo $review_comment | grep -q "Bad credentials" 2>/dev/null ; then
 #    echo '"Bad credentials" response for --data {"commit_id": "'"$TRAVIS_COMMIT"'","body": "'"$body"'","event": "COMMENT"}'
 #  fi
-  $shatool $@
+  $shatool "$@"
   exit 0
 fi
 
@@ -77,10 +77,10 @@ else
   # We are not running on Travis CI
   echo "Not running on Travis CI"
   if [ -z "$REPO_SLUG" ] ; then
-    read -s -p "Repo Slug (GitHub and Travis CI username/reponame): " REPO_SLUG
+    read -r -s -p "Repo Slug (GitHub and Travis CI username/reponame): " REPO_SLUG
   fi
   if [ -z "$GITHUB_TOKEN" ] ; then
-    read -s -p "Token (https://github.com/settings/tokens): " GITHUB_TOKEN
+    read -r -s -p "Token (https://github.com/settings/tokens): " GITHUB_TOKEN
   fi
 fi
 
@@ -169,7 +169,7 @@ fi
 
 echo "Upload binaries to the release..."
 
-for FILE in $@ ; do
+for FILE in "$@" ; do
   FULLNAME="${FILE}"
   BASENAME="$(basename "${FILE}")"
   curl -H "Authorization: token ${GITHUB_TOKEN}" \
@@ -180,7 +180,7 @@ for FILE in $@ ; do
   echo ""
 done
 
-$shatool $@
+$shatool "$@"
 
 if [ "$TRAVIS_COMMIT" != "$tag_sha" ] ; then
   echo "Publish the release..."
