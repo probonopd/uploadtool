@@ -20,7 +20,7 @@ fi
 # the output of the CI/CD pipeline (marked as 'continuous') and also test
 # builds for other branches.
 # If this build was triggered by a tag, call the result a Release
-if [ ! -z $UPLOADTOOL_SUFFIX ] ; then
+if [ ! -z "$UPLOADTOOL_SUFFIX" ] ; then
   if [ "$UPLOADTOOL_SUFFIX" = "$TRAVIS_TAG" ] ; then
     RELEASE_NAME=$TRAVIS_TAG
     RELEASE_TITLE="Release build ($TRAVIS_TAG)"
@@ -138,7 +138,7 @@ if [ "$TRAVIS_COMMIT" != "$tag_sha" ] ; then
   fi
 
   if [ ! -z "$TRAVIS_JOB_ID" ] ; then
-    if [ ! -z $UPLOADTOOL_BODY ] ; then
+    if [ ! -z "$UPLOADTOOL_BODY" ] ; then
       BODY="Travis CI build log: https://travis-ci.org/$REPO_SLUG/builds/$TRAVIS_BUILD_ID/"
     else
       BODY="$UPLOADTOOL_BODY"
