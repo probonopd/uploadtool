@@ -101,10 +101,12 @@ upload_url=$(echo "$release_infos" | grep '"upload_url":' | head -n 1 | cut -d '
 echo "upload_url: $upload_url"
 release_url=$(echo "$release_infos" | grep '"url":' | head -n 1 | cut -d '"' -f 4 | cut -d '{' -f 1)
 echo "release_url: $release_url"
+target_commit_sha=$(echo "$release_infos" | grep '"target_commitish":' | head -n 1 | cut -d '"' -f 4 | cut -d '{' -f 1)
+echo "target_commit_sha: $target_commit_sha"
 
-if [ "$TRAVIS_COMMIT" != "$tag_sha" ] ; then
+if [ "$TRAVIS_COMMIT" != "$target_commit_sha" ] ; then
 
-  echo "TRAVIS_COMMIT != tag_sha, hence deleting $RELEASE_NAME..."
+  echo "TRAVIS_COMMIT != target_commit_sha, hence deleting $RELEASE_NAME..."
   
   if [ ! -z "$release_id" ]; then
     delete_url="https://api.github.com/repos/$REPO_SLUG/releases/$release_id"
