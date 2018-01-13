@@ -2,6 +2,16 @@
 
 set +x # Do not leak information
 
+# Exit immediately if one of the files given as arguments is not there
+# because we don't want to delete the existing release if we don't have
+# the new files that should be uploaded 
+for file in "$@"
+do
+    if [ ! -e "$file" ]
+    then echo "$file is missing, giving up." >&2; exit 1
+    fi
+done
+
 if [ $# -eq 0 ]; then
     echo "No artifacts to use for release, giving up."
     exit 0
