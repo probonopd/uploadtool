@@ -99,7 +99,15 @@ for aid in $(seq 1 2 $Nassets); do
     asset_url="https://api.github.com/repos/$REPO_SLUG/releases/assets/$id"
     echo "asset_url: $asset_url"
     asset_info=$(curl -XGET --header "Authorization: token ${GITHUB_TOKEN}" "${asset_url}")
-    echo "$asset_info"
+    echo "$asset_info" | grep "browser_download_url"
+    for FILE in $@ ; do
+        FULLNAME="${FILE}"
+        BASENAME="$(basename "${FILE}")"
+	test=$(echo "$asset_info" | grep "browser_download_url" | grep "$BASENAME")
+	if [ -n "$test" ]; then
+	    curl -XDELETE --header "Authorization: token ${GITHUB_TOKEN}" "${asset_url}"
+	fi
+    done
 done
 
 
