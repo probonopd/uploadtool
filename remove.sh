@@ -93,14 +93,16 @@ for aid in $(seq 1 2 $Nassets); do
     asset_url="https://api.github.com/repos/$REPO_SLUG/releases/assets/$id"
     echo "asset_url: $asset_url"
     asset_info=$(curl -XGET --header "Authorization: token ${GITHUB_TOKEN}" "${asset_url}")
-    echo "$asset_info" | grep "browser_download_url"
-    for FILE in $@ ; do
-		test=$(echo "$asset_info" | grep "browser_download_url" | grep "$PREFIX")
-		if [ -n "$test" -a -n "$SUFFIX" ]; then
-			test=$(echo "$test" | grep "$SUFFIX")
-		fi
-		if [ -n "$test" ]; then
-	    	curl -XDELETE --header "Authorization: token ${GITHUB_TOKEN}" "${asset_url}"
-		fi
-    done
+    browser_download_url=$(echo "$asset_info" | grep "browser_download_url")
+    echo -n "browser_download_url: \"$browser_download_url\""    
+	test=$(echo "$browser_download_url" | grep "$PREFIX")
+	echo "test after PREFIX: \"$test\""
+	if [ -n "$test" -a -n "$SUFFIX" ]; then
+		test=$(echo "$test" | grep "$SUFFIX")
+		echo "test after SUFFIX: \"$test\""
+	fi
+	if [ -n "$test" ]; then
+		echo "deleting \"$browser_download_url\""
+		curl -XDELETE --header "Authorization: token ${GITHUB_TOKEN}" "${asset_url}"
+	fi
 done
