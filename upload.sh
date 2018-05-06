@@ -2,8 +2,14 @@
 
 set +x # Do not leak information
 
-RELEASE_NAME="continuous" # Do not use "latest" as it is reserved by GitHub
+RELEASE_NAME="$1" # Do not use "latest" as it is reserved by GitHub
+shift
 FULLNAME=SOME_FILE_NAME
+
+#__________________________________________________________
+#
+# INITIALIZATION
+#__________________________________________________________
 
 if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
   echo "Release uploading disabled for pull requests, TODO: Implement https://transfer.sh/ uploading for these"
@@ -29,6 +35,13 @@ else
   fi
 fi
     
+
+#__________________________________________________________
+#
+# Retrieve the "Continuous builds" release ID
+# create the release if missing
+#__________________________________________________________
+
 release_url="https://api.github.com/repos/$REPO_SLUG/releases/tags/$RELEASE_NAME"
 
 echo "Getting the release ID..."
