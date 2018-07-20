@@ -56,8 +56,6 @@ if [ "$ARTIFACTORY_BASE_URL" != "" ]; then
 
   files="$@"
 
-  set -x
-
   # artifactory doesn't support any kind of "artifact description", so we're uploading a text file containing the
   # relevant details along with the other artifacts
   tempdir=$(mktemp -d)
@@ -69,15 +67,22 @@ if [ "$ARTIFACTORY_BASE_URL" != "" ]; then
 
   for file in ${files[@]}; do
     url="${ARTIFACTORY_BASE_URL}/travis-${TRAVIS_BUILD_NUMBER}/"$(basename "$file")
+    md5sum=$(md5sum "$file" | cut -d' ' -f1)
     sha1sum=$(sha1sum "$file" | cut -d' ' -f1)
+    sha256sum=$(sha256sum "$file" | cut -d' ' -f1)
     echo "Uploading $file to $url"
-    if ! curl -H 'X-JFrog-Art-Api:'"$ARTIFACTORY_API_KEY" -H "X-Checksum-Sha1:$sha1sum" -T "$file" "$url"; then
+    hashsums=(-H "X-Checksum-Md5:$md5sum")
+    hashsums+=(-H "X-Checksum-Sha1:$sha1sum")
+    hashsums+=(-H "X-Checksum-Sha256:$sha256sum")
+    if ! curl -H 'X-JFrog-Art-Api:'"$ARTIFACTORY_API_KEY" "${hashsums[@]}" -T "$file" "$url"; then
       echo "Failed to upload file, exiting"
       rm -r "$tempdir"
       exit 1
     fi
     echo
+    echo "MD5 checksum: $md5sum"
     echo "SHA1 checksum: $sha1sum"
+    echo "SHA256 checksum: $sha256sum"
   done
   rm -r "$tempdir"
 fi
