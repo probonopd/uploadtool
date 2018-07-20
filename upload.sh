@@ -46,28 +46,33 @@ else
   is_prerelease="true"
 fi
 
+if [ "$ARTIFACTORY_BASE_URL" != "" ]; then
+  echo "ARTIFACTORY_BASE_URL set, trying to upload to artifactory"
+
+  if [ "$ARTIFACTORY_API_KEY" == "" ]; then
+    echo "Please set ARTIFACTORY_API_KEY"
+    exit 1
+  fi
+
+  set +x
+
+  for file in "$@"; do
+    url="${ARTIFACTORY_BASE_URL}/travis-${TRAVIS_BUILD_NUMBER}/"$(basename "$file")
+    sha1sum=$(sha1sum "$file" | cut -d' ' -f1)
+    echo "Uploading $file to $url"
+    if ! curl -H 'X-JFrog-Art-Api:'"$ARTIFACTORY_API_KEY" -H "X-Checksum-Sha1:$sha1sum" -T "$file" "$url"; then
+      echo "Failed to upload file, exiting"
+      exit 1
+    fi
+    echo
+    echo "SHA1 checksum: $sha1sum"
+  done
+fi
+
 if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
   echo "Release uploading disabled for pull requests"
   if [ "$ARTIFACTORY_BASE_URL" != "" ]; then
-    echo "ARTIFACTORY_BASE_URL set, trying to upload to artifactory"
-    if [ "$ARTIFACTORY_API_KEY" == "" ]; then
-      echo "Please set ARTIFACTORY_API_KEY"
-      exit 1
-    fi
-
-    set +x
-
-    for file in "$@"; do
-      url="${ARTIFACTORY_BASE_URL}/travis-${TRAVIS_BUILD_NUMBER}/"$(basename "$file")
-      sha1sum=$(sha1sum "$file" | cut -d' ' -f1)
-      echo "Uploading $file to $url"
-      if ! curl -H 'X-JFrog-Art-Api:'"$ARTIFACTORY_API_KEY" -H "X-Checksum-Sha1:$sha1sum" -T "$file" "$url"; then
-        echo "Failed to upload file, exiting"
-        exit 1
-      fi
-      echo
-      echo "SHA1 checksum: $sha1sum"
-    done
+    echo "Releases have already been uploaded to Artifactory, exiting"
     exit 0
   else
     echo "Release uploading disabled for pull requests, uploading to transfer.sh instead"
