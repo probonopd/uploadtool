@@ -60,7 +60,7 @@ if [ "$ARTIFACTORY_BASE_URL" != "" ]; then
   # relevant details along with the other artifacts
   tempdir=$(mktemp -d)
   info_file="$tempdir"/build-info.txt
-  echo "Travis CI build log: https://travis-ci.org/$REPO_SLUG/builds/$TRAVIS_BUILD_ID/" > "$info_file"
+  echo "Travis CI build log: https://travis-ci.org/$TRAVIS_REPO_SLUG/builds/$TRAVIS_BUILD_ID/" > "$info_file"
   files+=("$info_file")
 
   set +x
