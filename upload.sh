@@ -47,14 +47,38 @@ else
 fi
 
 if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
-  echo "Release uploading disabled for pull requests, uploading to transfer.sh instead"
-  rm -f ./uploaded-to
-  for FILE in "$@" ; do
-    BASENAME="$(basename "${FILE}")"
-    curl --upload-file $FILE "https://transfer.sh/$BASENAME" > ./one-upload
-    echo "$(cat ./one-upload)" # this way we get a newline
-    echo -n "$(cat ./one-upload)\\n" >> ./uploaded-to # this way we get a \n but no newline
-  done
+  echo "Release uploading disabled for pull requests"
+  if [ "$ARTIFACTORY_BASE_URL" != "" ]; then
+    echo "ARTIFACTORY_BASE_URL set, trying to upload to artifactory"
+    if [ "$ARTIFACTORY_API_KEY" == "" ]; then
+      echo "Please set ARTIFACTORY_API_KEY"
+      exit 1
+    fi
+
+    set +x
+
+    for file in "$@"; do
+      url="${ARTIFACTORY_BASE_URL}/travis-${TRAVIS_BUILD_NUMBER}/"$(basename "$file")
+      sha1sum=$(sha1sum "$file" | cut -d' ' -f1)
+      echo "Uploading $file to $url"
+      if ! curl -H 'X-JFrog-Art-Api:'"$ARTIFACTORY_API_KEY" -H "X-Checksum-Sha1:$sha1sum" -T "$file" "$url"; then
+        echo "Failed to upload file, exiting"
+        exit 1
+      fi
+      echo
+      echo "SHA1 checksum: $sha1sum"
+    done
+    exit 0
+  else
+    echo "Release uploading disabled for pull requests, uploading to transfer.sh instead"
+    rm -f ./uploaded-to
+    for FILE in "$@" ; do
+      BASENAME="$(basename "${FILE}")"
+      curl --upload-file $FILE "https://transfer.sh/$BASENAME" > ./one-upload
+      echo "$(cat ./one-upload)" # this way we get a newline
+      echo -n "$(cat ./one-upload)\\n" >> ./uploaded-to # this way we get a \n but no newline
+    done
+  fi
 #  review_url="https://api.github.com/repos/${TRAVIS_REPO_SLUG}/pulls/${TRAVIS_PULL_REQUEST}/reviews"
 #  if [ -z $UPLOADTOOL_PR_BODY ] ; then
 #    body="Travis CI has created build artifacts for this PR here:"
@@ -87,7 +111,7 @@ else
   # We are not running on Travis CI
   echo "Not running on Travis CI"
   if [ -z "$REPO_SLUG" ] ; then
-    read -r -s -p "Repo Slug (GitHub and Travis CI username/reponame): " REPO_SLUG
+    read -r -p "Repo Slug (GitHub and Travis CI username/reponame): " REPO_SLUG
   fi
   if [ -z "$GITHUB_TOKEN" ] ; then
     read -r -s -p "Token (https://github.com/settings/tokens): " GITHUB_TOKEN
