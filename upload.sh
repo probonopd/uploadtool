@@ -54,19 +54,32 @@ if [ "$ARTIFACTORY_BASE_URL" != "" ]; then
     exit 1
   fi
 
+  files="$@"
+
+  set -x
+
+  # artifactory doesn't support any kind of "artifact description", so we're uploading a text file containing the
+  # relevant details along with the other artifacts
+  tempdir=$(mktemp -d)
+  info_file="$tempdir"/build-info.txt
+  echo "Travis CI build log: https://travis-ci.org/$REPO_SLUG/builds/$TRAVIS_BUILD_ID/" > "$info_file"
+  files+=("$info_file")
+
   set +x
 
-  for file in "$@"; do
+  for file in ${files[@]}; do
     url="${ARTIFACTORY_BASE_URL}/travis-${TRAVIS_BUILD_NUMBER}/"$(basename "$file")
     sha1sum=$(sha1sum "$file" | cut -d' ' -f1)
     echo "Uploading $file to $url"
     if ! curl -H 'X-JFrog-Art-Api:'"$ARTIFACTORY_API_KEY" -H "X-Checksum-Sha1:$sha1sum" -T "$file" "$url"; then
       echo "Failed to upload file, exiting"
+      rm -r "$tempdir"
       exit 1
     fi
     echo
     echo "SHA1 checksum: $sha1sum"
   done
+  rm -r "$tempdir"
 fi
 
 if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
