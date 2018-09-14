@@ -32,7 +32,7 @@ fi
 # If this build was triggered by a tag, call the result a Release
 if [ ! -z "$UPLOADTOOL_SUFFIX" ] ; then
   if [ "$UPLOADTOOL_SUFFIX" = "$TRAVIS_TAG" ] ; then
-    RELEASE_NAME=$TRAVIS_TAG
+    RELEASE_NAME="$TRAVIS_TAG"
     RELEASE_TITLE="Release build ($TRAVIS_TAG)"
     is_prerelease="false"
   else
@@ -41,9 +41,15 @@ if [ ! -z "$UPLOADTOOL_SUFFIX" ] ; then
     is_prerelease="true"
   fi
 else
-  RELEASE_NAME="continuous" # Do not use "latest" as it is reserved by GitHub
-  RELEASE_TITLE="Continuous build"
-  is_prerelease="true"
+  if [ "$TRAVIS_TAG" != "" ]; then
+    RELEASE_NAME="$TRAVIS_TAG"
+    RELEASE_TITLE="Release build ($TRAVIS_TAG)"
+    is_prerelease="false"
+  else
+    RELEASE_NAME="continuous" # Do not use "latest" as it is reserved by GitHub
+    RELEASE_TITLE="Continuous build"
+    is_prerelease="true"
+  fi
 fi
 
 if [ "$ARTIFACTORY_BASE_URL" != "" ]; then
