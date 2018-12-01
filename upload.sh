@@ -93,6 +93,8 @@ if [ "$ARTIFACTORY_BASE_URL" != "" ]; then
   rm -r "$tempdir"
 fi
 
+# Do not upload non-master branch builds
+# if [ "$TRAVIS_TAG" != "$TRAVIS_BRANCH" ] && [ "$TRAVIS_BRANCH" != "master" ]; then export TRAVIS_EVENT_TYPE=pull_request; fi
 if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
   echo "Release uploading disabled for pull requests"
   if [ "$ARTIFACTORY_BASE_URL" != "" ]; then
