@@ -66,7 +66,7 @@ if [ "$ARTIFACTORY_BASE_URL" != "" ]; then
   # relevant details along with the other artifacts
   tempdir=$(mktemp -d)
   info_file="$tempdir"/build-info.txt
-  echo "Travis CI build log: https://travis-ci.com/$TRAVIS_REPO_SLUG/builds/$TRAVIS_BUILD_ID/" > "$info_file"
+  echo "Travis CI build log: ${TRAVIS_BUILD_WEB_URL}" > "$info_file"
   files+=("$info_file")
 
   set +x
@@ -206,8 +206,7 @@ if [ "$TRAVIS_COMMIT" != "$target_commit_sha" ] ; then
 
   if [ ! -z "$TRAVIS_JOB_ID" ] ; then
     if [ -z "${UPLOADTOOL_BODY+x}" ] ; then
-      # TODO: The host could be travis-ci.org (legacy open source) or travis-ci.com (subscription or latest open source).
-      BODY="Travis CI build log: https://travis-ci.com/$REPO_SLUG/builds/$TRAVIS_BUILD_ID/"
+      BODY="Travis CI build log: ${TRAVIS_BUILD_WEB_URL}"
     else
       BODY="$UPLOADTOOL_BODY"
     fi
