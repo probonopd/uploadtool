@@ -20,7 +20,7 @@ after_success:
 branches:
   except:
     - # Do not build tags that we create when we upload to GitHub Releases
-    - /^(?i:continuous)$/
+    - /^(?i:continuous.*)$/
 ```
 
 ## Environment variables
