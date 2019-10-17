@@ -41,15 +41,25 @@ if [ ! -z "$UPLOADTOOL_SUFFIX" ] ; then
     is_prerelease="true"
   fi
 else
-  if [ "$TRAVIS_TAG" != "" ]; then
-    RELEASE_NAME="$TRAVIS_TAG"
-    RELEASE_TITLE="Release build ($TRAVIS_TAG)"
-    is_prerelease="false"
-  else
-    RELEASE_NAME="continuous" # Do not use "latest" as it is reserved by GitHub
-    RELEASE_TITLE="Continuous build"
-    is_prerelease="true"
-  fi
+  # ,, is a bash-ism to convert variable to lower case
+  case "${TRAVIS_TAG,,}" in
+    "")
+      # Do not use "latest" as it is reserved by GitHub
+      RELEASE_NAME="continuous"
+      RELEASE_TITLE="Continuous build"
+      is_prerelease="true"
+      ;;
+    *-alpha*|*-beta*|*-rc*)
+      is_prerelease="true";
+      RELEASE_TITLE="Prerelease build ($TRAVIS_TAG)"
+      is_prerelease="true"
+      ;;
+    *)
+      RELEASE_NAME="$TRAVIS_TAG"
+      RELEASE_TITLE="Release build ($TRAVIS_TAG)"
+      is_prerelease="false"
+      ;;
+  esac
 fi
 
 if [ "$ARTIFACTORY_BASE_URL" != "" ]; then
