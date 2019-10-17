@@ -51,7 +51,7 @@ else
       ;;
     *-alpha*|*-beta*|*-rc*)
       RELEASE_NAME="$TRAVIS_TAG"
-      RELEASE_TITLE="Prerelease build ($TRAVIS_TAG)"
+      RELEASE_TITLE="Pre-release build ($TRAVIS_TAG)"
       is_prerelease="true"
       ;;
     *)
