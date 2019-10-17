@@ -197,7 +197,7 @@ if [ "$TRAVIS_COMMIT" != "$target_commit_sha" ] ; then
   # curl -XGET --header "Authorization: token ${GITHUB_TOKEN}" \
   #     "$release_url"
 
-  if [ "$is_prerelease" = "true" ] ; then
+  if [ "$RELEASE_NAME" == "continuous" ] ; then
     # if this is a continuous build tag, then delete the old tag
     # in preparation for the new release
     echo "Delete the tag..."
