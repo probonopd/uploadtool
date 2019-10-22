@@ -41,25 +41,15 @@ if [ ! -z "$UPLOADTOOL_SUFFIX" ] ; then
     is_prerelease="true"
   fi
 else
-  # ,, is a bash-ism to convert variable to lower case
-  case "${TRAVIS_TAG,,}" in
-    "")
-      # Do not use "latest" as it is reserved by GitHub
-      RELEASE_NAME="continuous"
-      RELEASE_TITLE="Continuous build"
-      is_prerelease="true"
-      ;;
-    *-alpha*|*-beta*|*-rc*)
-      RELEASE_NAME="$TRAVIS_TAG"
-      RELEASE_TITLE="Pre-release build ($TRAVIS_TAG)"
-      is_prerelease="true"
-      ;;
-    *)
-      RELEASE_NAME="$TRAVIS_TAG"
-      RELEASE_TITLE="Release build ($TRAVIS_TAG)"
-      is_prerelease="false"
-      ;;
-  esac
+  if [ "$TRAVIS_TAG" != "" ]; then
+    RELEASE_NAME="$TRAVIS_TAG"
+    RELEASE_TITLE="Release build ($TRAVIS_TAG)"
+    is_prerelease="false"
+  else
+    RELEASE_NAME="continuous" # Do not use "latest" as it is reserved by GitHub
+    RELEASE_TITLE="Continuous build"
+    is_prerelease="true"
+  fi
 fi
 
 if [ "$ARTIFACTORY_BASE_URL" != "" ]; then
@@ -197,7 +187,7 @@ if [ "$TRAVIS_COMMIT" != "$target_commit_sha" ] ; then
   # curl -XGET --header "Authorization: token ${GITHUB_TOKEN}" \
   #     "$release_url"
 
-  if [ "$RELEASE_NAME" == "continuous" ] ; then
+  if [ "$is_prerelease" = "true" ] ; then
     # if this is a continuous build tag, then delete the old tag
     # in preparation for the new release
     echo "Delete the tag..."
