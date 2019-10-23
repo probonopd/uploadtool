@@ -42,7 +42,7 @@ if [ ! -z "$UPLOADTOOL_SUFFIX" ] ; then
   fi
 else
   # ,, is a bash-ism to convert variable to lower case
-  case "${TRAVIS_TAG,,}" in
+  case $(tr '[:upper:]' '[:lower:]' <<< "$TRAVIS_TAG") in
     "")
       # Do not use "latest" as it is reserved by GitHub
       RELEASE_NAME="continuous"
