@@ -1,10 +1,5 @@
-lang: c
+lang: none
 
-# Simulate two architectures (only used for testing here!)
-env:
-  - ARCH=one
-  - ARCH=two
- 
 script:
   - cp upload.sh upload-$ARCH.sh
   - bash ./upload.sh upload-$ARCH.sh
