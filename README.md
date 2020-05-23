@@ -8,7 +8,7 @@ This script is designed to be called from Travis CI after a successful build. By
 
  - On https://github.com/settings/tokens, click on "Generate new token" and generate a token with at least the `public_repo`, `repo:status`, and `repo_deployment` scopes
  - On Travis CI, go to the settings of your project at `https://travis-ci.com/yourusername/yourrepository/settings`
- - Under "Environment Variables", add key `GITHUB_TOKEN` and the token you generated above as the value. **Make sure that "Display value in build log" is set to "OFF"!**
+ - Under "Environment Variables", add key `GITHUB_TOKEN` and the token you generated above as the value. **Make sure that "Display value in build log" is set to "OFF"! Also make sure it is only available to your main branch (most of the time, `master`) to avoid leaking it and prevent uploads for any other branches!** 
  - In the `.travis.yml` of your GitHub repository, add something like this (assuming the build artifacts to be uploaded are in out/):
 
 ```yaml
