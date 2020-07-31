@@ -111,11 +111,11 @@ if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
     echo "Releases have already been uploaded to Artifactory, exiting"
     exit 0
   else
-    echo "Release uploading disabled for pull requests, uploading to transfer.sh instead"
+    echo "Release uploading disabled for pull requests, uploading to transfersh.com instead"
     rm -f ./uploaded-to
     for FILE in "$@" ; do
       BASENAME="$(basename "${FILE}")"
-      curl --upload-file $FILE "https://transfer.sh/$BASENAME" > ./one-upload
+      curl --upload-file $FILE "https://transfersh.com/$BASENAME" > ./one-upload
       echo "$(cat ./one-upload)" # this way we get a newline
       echo -n "$(cat ./one-upload)\\n" >> ./uploaded-to # this way we get a \n but no newline
     done
