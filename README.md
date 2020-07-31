@@ -4,7 +4,7 @@ Super simple uploading of continuous builds (each push) to GitHub Releases. If t
 
 ## Usage
 
-This script is designed to be called from Travis CI after a successful build. By default, this script will _delete_ any pre-existing release tagged with `continuous`, tag the current state with the name `continuous`, create a new release with that name, and upload the specified binaries there. For pull requests, it will upload the binaries to transfer.sh instead and post the resulting download URL to the pull request page on GitHub.
+This script is designed to be called from Travis CI after a successful build. By default, this script will _delete_ any pre-existing release tagged with `continuous`, tag the current state with the name `continuous`, create a new release with that name, and upload the specified binaries there. For pull requests, it will upload the binaries to transfersh.com instead and post the resulting download URL to the pull request page on GitHub.
 
  - On https://github.com/settings/tokens, click on "Generate new token" and generate a token with at least the `public_repo`, `repo:status`, and `repo_deployment` scopes
  - On Travis CI, go to the settings of your project at `https://travis-ci.com/yourusername/yourrepository/settings`
