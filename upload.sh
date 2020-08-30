@@ -38,7 +38,7 @@ if [ ! -z "$UPLOADTOOL_SUFFIX" ] ; then
   else
     RELEASE_NAME="continuous-$UPLOADTOOL_SUFFIX"
     RELEASE_TITLE="Continuous build ($UPLOADTOOL_SUFFIX)"
-    is_prerelease="true"
+    is_prerelease="false"
   fi
 else
   # ,, is a bash-ism to convert variable to lower case
@@ -47,7 +47,7 @@ else
       # Do not use "latest" as it is reserved by GitHub
       RELEASE_NAME="continuous"
       RELEASE_TITLE="Continuous build"
-      is_prerelease="true"
+      is_prerelease="false"
       ;;
     *-alpha*|*-beta*|*-rc*)
       RELEASE_NAME="$TRAVIS_TAG"
