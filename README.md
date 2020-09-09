@@ -40,7 +40,7 @@ This will create builds tagged with `continuous` for pushes / merges to `master`
 
 The two environment variables `UPLOADTOOL_PR_BODY` and `UPLOADTOOL_BODY` allow the calling script to customize the messages that are posted either for pull requests or merges / pushes. If these variables aren't set, generic default texts are used.
 
-The environment variable `UPLOADTOOL_ISPRERELEASE` allows the calling script to define if the release is a pre-release or not. This tag is only relevant for untagged release and if omitted the releases are marked as not pre-releases by default. 
+The environment variable `UPLOADTOOL_ISPRERELEASE` allows the calling script to define if the release is a pre-release or not. This environment variable is only relevant for untagged release. The default value is `false` which means the release is not a pre-release by default.
 
 Note that `UPLOADTOOL*` variables will be used in bash script to form a JSON request, that means some
 characters like double quotes and new lines need to be escaped - example: `export UPLOADTOOL_BODY="\\\"Experimental\\\" version.\nDon't use this.\nTravis CI build log: https://travis-ci.com/$TRAVIS_REPO_SLUG/builds/$TRAVIS_BUILD_ID/"`
