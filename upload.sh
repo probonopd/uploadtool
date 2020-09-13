@@ -38,10 +38,10 @@ if [ ! -z "$UPLOADTOOL_SUFFIX" ] ; then
   else
     RELEASE_NAME="continuous-$UPLOADTOOL_SUFFIX"
     RELEASE_TITLE="Continuous build ($UPLOADTOOL_SUFFIX)"
-    if [ ! -z "$UPLOADTOOL_ISPRERELEASE" ] ; then
+    if [ -z "$UPLOADTOOL_ISPRERELEASE" ] ; then
       is_prerelease="false"
     else
-      is_prerelease="$UPLOADTOOL_ISPRERELEASE"
+      is_prerelease="true"
     fi
 
   fi
@@ -52,10 +52,10 @@ else
       # Do not use "latest" as it is reserved by GitHub
       RELEASE_NAME="continuous"
       RELEASE_TITLE="Continuous build"
-      if [ ! -z "$UPLOADTOOL_ISPRERELEASE" ] ; then
+      if [ -z "$UPLOADTOOL_ISPRERELEASE" ] ; then
         is_prerelease="false"
       else
-        is_prerelease="$UPLOADTOOL_ISPRERELEASE"
+        is_prerelease="$true"
       fi
       ;;
     *-alpha*|*-beta*|*-rc*)
