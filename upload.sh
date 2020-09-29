@@ -55,7 +55,7 @@ else
       if [ -z "$UPLOADTOOL_ISPRERELEASE" ] ; then
         is_prerelease="false"
       else
-        is_prerelease="$true"
+        is_prerelease="true"
       fi
       ;;
     *-alpha*|*-beta*|*-rc*)
