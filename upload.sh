@@ -261,7 +261,7 @@ for FILE in "$@" ; do
   curl -H "Authorization: token ${GITHUB_TOKEN}" \
        -H "Accept: application/vnd.github.manifold-preview" \
        -H "Content-Type: application/octet-stream" \
-       --data-binary @$FULLNAME \
+       --data-binary "@$FULLNAME" \
        "$upload_url?name=$BASENAME"
   echo ""
 done
