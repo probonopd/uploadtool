@@ -255,6 +255,22 @@ fi
 
 echo "Upload binaries to the release..."
 
+# Need to URL encode the basename, so we have this function to do so
+urlencode() {
+  # urlencode <string>
+  old_lc_collate=$LC_COLLATE
+  LC_COLLATE=C
+  local length="${#1}"
+  for (( i = 0; i < length; i++ )); do
+    local c="${1:$i:1}"
+    case $c in
+      [a-zA-Z0-9.~_-]) printf '%s' "$c" ;;
+      *) printf '%%%02X' "'$c" ;;
+    esac
+  done
+  LC_COLLATE=$old_lc_collate
+}
+
 for FILE in "$@" ; do
   FULLNAME="${FILE}"
   BASENAME="$(basename "${FILE}")"
@@ -262,7 +278,7 @@ for FILE in "$@" ; do
        -H "Accept: application/vnd.github.manifold-preview" \
        -H "Content-Type: application/octet-stream" \
        --data-binary "@$FULLNAME" \
-       "$upload_url?name=$BASENAME"
+       "$upload_url?name=$(urlencode "$BASENAME")"
   echo ""
 done
 
