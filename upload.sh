@@ -25,15 +25,18 @@ else
   echo "Neither sha256sum nor shasum is available, cannot check hashes"
 fi
 
+GIT_COMMIT="$TRAVIS_COMMIT"
+GIT_TAG="$TRAVIS_TAG"
+
 # The calling script (usually .travis.yml) can set a suffix to be used for
 # the tag and release name. This way it is possible to have a release for
 # the output of the CI/CD pipeline (marked as 'continuous') and also test
 # builds for other branches.
 # If this build was triggered by a tag, call the result a Release
 if [ ! -z "$UPLOADTOOL_SUFFIX" ] ; then
-  if [ "$UPLOADTOOL_SUFFIX" = "$TRAVIS_TAG" ] ; then
-    RELEASE_NAME="$TRAVIS_TAG"
-    RELEASE_TITLE="Release build ($TRAVIS_TAG)"
+  if [ "$UPLOADTOOL_SUFFIX" = "$GIT_TAG" ] ; then
+    RELEASE_NAME="$GIT_TAG"
+    RELEASE_TITLE="Release build ($GIT_TAG)"
     is_prerelease="false"
   else
     RELEASE_NAME="continuous-$UPLOADTOOL_SUFFIX"
@@ -47,7 +50,7 @@ if [ ! -z "$UPLOADTOOL_SUFFIX" ] ; then
   fi
 else
   # ,, is a bash-ism to convert variable to lower case
-  case $(tr '[:upper:]' '[:lower:]' <<< "$TRAVIS_TAG") in
+  case $(tr '[:upper:]' '[:lower:]' <<< "$GIT_TAG") in
     "")
       # Do not use "latest" as it is reserved by GitHub
       RELEASE_NAME="continuous"
@@ -59,13 +62,13 @@ else
       fi
       ;;
     *-alpha*|*-beta*|*-rc*)
-      RELEASE_NAME="$TRAVIS_TAG"
-      RELEASE_TITLE="Pre-release build ($TRAVIS_TAG)"
+      RELEASE_NAME="$GIT_TAG"
+      RELEASE_TITLE="Pre-release build ($GIT_TAG)"
       is_prerelease="true"
       ;;
     *)
-      RELEASE_NAME="$TRAVIS_TAG"
-      RELEASE_TITLE="Release build ($TRAVIS_TAG)"
+      RELEASE_NAME="$GIT_TAG"
+      RELEASE_TITLE="Release build ($GIT_TAG)"
       is_prerelease="false"
       ;;
   esac
@@ -113,7 +116,7 @@ if [ "$ARTIFACTORY_BASE_URL" != "" ]; then
 fi
 
 # Do not upload non-master branch builds
-# if [ "$TRAVIS_TAG" != "$TRAVIS_BRANCH" ] && [ "$TRAVIS_BRANCH" != "master" ]; then export TRAVIS_EVENT_TYPE=pull_request; fi
+# if [ "$GIT_TAG" != "$TRAVIS_BRANCH" ] && [ "$TRAVIS_BRANCH" != "master" ]; then export TRAVIS_EVENT_TYPE=pull_request; fi
 if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
   echo "Release uploading disabled for pull requests"
   if [ "$ARTIFACTORY_BASE_URL" != "" ]; then
@@ -138,10 +141,10 @@ if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
 #  body="$body\n$(cat ./uploaded-to)\nThe link(s) will expire 14 days from now."
 #  review_comment=$(curl -X POST \
 #    --header "Authorization: token ${GITHUB_TOKEN}" \
-#    --data '{"commit_id": "'"$TRAVIS_COMMIT"'","body": "'"$body"'","event": "COMMENT"}' \
+#    --data '{"commit_id": "'"$GIT_COMMIT"'","body": "'"$body"'","event": "COMMENT"}' \
 #    $review_url)
 #  if echo $review_comment | grep -q "Bad credentials" 2>/dev/null ; then
-#    echo '"Bad credentials" response for --data {"commit_id": "'"$TRAVIS_COMMIT"'","body": "'"$body"'","event": "COMMENT"}'
+#    echo '"Bad credentials" response for --data {"commit_id": "'"$GIT_COMMIT"'","body": "'"$body"'","event": "COMMENT"}'
 #  fi
   $shatool "$@"
   exit 0
@@ -150,7 +153,7 @@ fi
 if [ ! -z "$TRAVIS_REPO_SLUG" ] ; then
   # We are running on Travis CI
   echo "Running on Travis CI"
-  echo "TRAVIS_COMMIT: $TRAVIS_COMMIT"
+  echo "GIT_COMMIT: $GIT_COMMIT"
   REPO_SLUG="$TRAVIS_REPO_SLUG"
   if [ -z "$GITHUB_TOKEN" ] ; then
     echo "\$GITHUB_TOKEN missing, please set it in the Travis CI settings of this project"
@@ -188,9 +191,9 @@ echo "release_url: $release_url"
 target_commit_sha=$(echo "$release_infos" | grep '"target_commitish":' | head -n 1 | cut -d '"' -f 4 | cut -d '{' -f 1)
 echo "target_commit_sha: $target_commit_sha"
 
-if [ "$TRAVIS_COMMIT" != "$target_commit_sha" ] ; then
+if [ "$GIT_COMMIT" != "$target_commit_sha" ] ; then
 
-  echo "TRAVIS_COMMIT != target_commit_sha, hence deleting $RELEASE_NAME..."
+  echo "GIT_COMMIT != target_commit_sha, hence deleting $RELEASE_NAME..."
   
   if [ ! -z "$release_id" ]; then
     delete_url="https://api.github.com/repos/$REPO_SLUG/releases/$release_id"
@@ -234,7 +237,7 @@ if [ "$TRAVIS_COMMIT" != "$target_commit_sha" ] ; then
   fi
 
   release_infos=$(curl -H "Authorization: token ${GITHUB_TOKEN}" \
-       --data '{"tag_name": "'"$RELEASE_NAME"'","target_commitish": "'"$TRAVIS_COMMIT"'","name": "'"$RELEASE_TITLE"'","body": "'"$BODY"'","draft": false,"prerelease": '$is_prerelease'}' "https://api.github.com/repos/$REPO_SLUG/releases")
+       --data '{"tag_name": "'"$RELEASE_NAME"'","target_commitish": "'"$GIT_COMMIT"'","name": "'"$RELEASE_TITLE"'","body": "'"$BODY"'","draft": false,"prerelease": '$is_prerelease'}' "https://api.github.com/repos/$REPO_SLUG/releases")
 
   echo "$release_infos"
 
@@ -246,7 +249,7 @@ if [ "$TRAVIS_COMMIT" != "$target_commit_sha" ] ; then
   release_url=$(echo "$release_infos" | grep '"url":' | head -n 1 | cut -d '"' -f 4 | cut -d '{' -f 1)
   echo "release_url: $release_url"
 
-fi # if [ "$TRAVIS_COMMIT" != "$tag_sha" ]
+fi # if [ "$GIT_COMMIT" != "$tag_sha" ]
 
 if [ -z "$release_url" ] ; then
 	echo "Cannot figure out the release URL for $RELEASE_NAME"
@@ -284,11 +287,11 @@ done
 
 $shatool "$@"
 
-if [ "$TRAVIS_COMMIT" != "$tag_sha" ] ; then
+if [ "$GIT_COMMIT" != "$tag_sha" ] ; then
   echo "Publish the release..."
 
   release_infos=$(curl -H "Authorization: token ${GITHUB_TOKEN}" \
        --data '{"draft": false}' "$release_url")
 
   echo "$release_infos"
-fi # if [ "$TRAVIS_COMMIT" != "$tag_sha" ]
+fi # if [ "$GIT_COMMIT" != "$tag_sha" ]
