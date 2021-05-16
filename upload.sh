@@ -157,7 +157,6 @@ if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
 fi
 
 if [ ! -z "$TRAVIS_REPO_SLUG" ] ; then
-  # We are running on Travis CI
   echo "Running on Travis CI"
   echo "TRAVIS_COMMIT: $TRAVIS_COMMIT"
   if [ -z "$GITHUB_TOKEN" ] ; then
@@ -166,7 +165,6 @@ if [ ! -z "$TRAVIS_REPO_SLUG" ] ; then
     exit 1
   fi
 else
-  # We are not running on Travis CI
   echo "Not running on Travis CI"
   if [ -z "$GIT_REPO_SLUG" ] ; then
     read -r -p "Repo Slug (GitHub and Travis CI username/reponame): " GIT_REPO_SLUG
