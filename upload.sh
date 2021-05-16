@@ -25,6 +25,7 @@ else
   echo "Neither sha256sum nor shasum is available, cannot check hashes"
 fi
 
+RELEASE_BODY=""
 GIT_REPO_SLUG="$REPO_SLUG"
 
 GIT_COMMIT="$TRAVIS_COMMIT"
@@ -32,6 +33,11 @@ GIT_TAG="$TRAVIS_TAG"
 
 if [ ! -z "$TRAVIS_REPO_SLUG" ] ; then
   GIT_REPO_SLUG="$TRAVIS_REPO_SLUG"
+  RELEASE_BODY="Travis CI build log: ${TRAVIS_BUILD_WEB_URL}"
+fi
+
+if [ ! -z "$UPLOADTOOL_BODY" ] ; then
+  RELEASE_BODY="$UPLOADTOOL_BODY"
 fi
 
 # The calling script (usually .travis.yml) can set a suffix to be used for
@@ -225,22 +231,8 @@ if [ "$GIT_COMMIT" != "$target_commit_sha" ] ; then
 
   echo "Create release..."
 
-  if [ -z "$TRAVIS_BRANCH" ] ; then
-    TRAVIS_BRANCH="master"
-  fi
-
-  if [ ! -z "$TRAVIS_JOB_ID" ] ; then
-    if [ -z "${UPLOADTOOL_BODY+x}" ] ; then
-      BODY="Travis CI build log: ${TRAVIS_BUILD_WEB_URL}"
-    else
-      BODY="$UPLOADTOOL_BODY"
-    fi
-  else
-    BODY="$UPLOADTOOL_BODY"
-  fi
-
   release_infos=$(curl -H "Authorization: token ${GITHUB_TOKEN}" \
-       --data '{"tag_name": "'"$RELEASE_NAME"'","target_commitish": "'"$GIT_COMMIT"'","name": "'"$RELEASE_TITLE"'","body": "'"$BODY"'","draft": false,"prerelease": '$is_prerelease'}' "https://api.github.com/repos/$GIT_REPO_SLUG/releases")
+       --data '{"tag_name": "'"$RELEASE_NAME"'","target_commitish": "'"$GIT_COMMIT"'","name": "'"$RELEASE_TITLE"'","body": "'"$RELEASE_BODY"'","draft": false,"prerelease": '$is_prerelease'}' "https://api.github.com/repos/$GIT_REPO_SLUG/releases")
 
   echo "$release_infos"
 
