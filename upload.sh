@@ -25,8 +25,14 @@ else
   echo "Neither sha256sum nor shasum is available, cannot check hashes"
 fi
 
+GIT_REPO_SLUG="$REPO_SLUG"
+
 GIT_COMMIT="$TRAVIS_COMMIT"
 GIT_TAG="$TRAVIS_TAG"
+
+if [ ! -z "$TRAVIS_REPO_SLUG" ] ; then
+  GIT_REPO_SLUG="$TRAVIS_REPO_SLUG"
+fi
 
 # The calling script (usually .travis.yml) can set a suffix to be used for
 # the tag and release name. This way it is possible to have a release for
@@ -132,7 +138,7 @@ if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
       echo -n "$(cat ./one-upload)\\n" >> ./uploaded-to # this way we get a \n but no newline
     done
   fi
-#  review_url="https://api.github.com/repos/${TRAVIS_REPO_SLUG}/pulls/${TRAVIS_PULL_REQUEST}/reviews"
+#  review_url="https://api.github.com/repos/${GIT_REPO_SLUG}/pulls/${TRAVIS_PULL_REQUEST}/reviews"
 #  if [ -z $UPLOADTOOL_PR_BODY ] ; then
 #    body="Travis CI has created build artifacts for this PR here:"
 #  else
@@ -153,8 +159,7 @@ fi
 if [ ! -z "$TRAVIS_REPO_SLUG" ] ; then
   # We are running on Travis CI
   echo "Running on Travis CI"
-  echo "GIT_COMMIT: $GIT_COMMIT"
-  REPO_SLUG="$TRAVIS_REPO_SLUG"
+  echo "TRAVIS_COMMIT: $TRAVIS_COMMIT"
   if [ -z "$GITHUB_TOKEN" ] ; then
     echo "\$GITHUB_TOKEN missing, please set it in the Travis CI settings of this project"
     echo "You can get one from https://github.com/settings/tokens"
@@ -163,21 +168,21 @@ if [ ! -z "$TRAVIS_REPO_SLUG" ] ; then
 else
   # We are not running on Travis CI
   echo "Not running on Travis CI"
-  if [ -z "$REPO_SLUG" ] ; then
-    read -r -p "Repo Slug (GitHub and Travis CI username/reponame): " REPO_SLUG
+  if [ -z "$GIT_REPO_SLUG" ] ; then
+    read -r -p "Repo Slug (GitHub and Travis CI username/reponame): " GIT_REPO_SLUG
   fi
   if [ -z "$GITHUB_TOKEN" ] ; then
     read -r -s -p "Token (https://github.com/settings/tokens): " GITHUB_TOKEN
   fi
 fi
 
-tag_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
+tag_url="https://api.github.com/repos/$GIT_REPO_SLUG/git/refs/tags/$RELEASE_NAME"
 tag_infos=$(curl -XGET --header "Authorization: token ${GITHUB_TOKEN}" "${tag_url}")
 echo "tag_infos: $tag_infos"
 tag_sha=$(echo "$tag_infos" | grep '"sha":' | head -n 1 | cut -d '"' -f 4 | cut -d '{' -f 1)
 echo "tag_sha: $tag_sha"
 
-release_url="https://api.github.com/repos/$REPO_SLUG/releases/tags/$RELEASE_NAME"
+release_url="https://api.github.com/repos/$GIT_REPO_SLUG/releases/tags/$RELEASE_NAME"
 echo "Getting the release ID..."
 echo "release_url: $release_url"
 release_infos=$(curl -XGET --header "Authorization: token ${GITHUB_TOKEN}" "${release_url}")
@@ -196,7 +201,7 @@ if [ "$GIT_COMMIT" != "$target_commit_sha" ] ; then
   echo "GIT_COMMIT != target_commit_sha, hence deleting $RELEASE_NAME..."
   
   if [ ! -z "$release_id" ]; then
-    delete_url="https://api.github.com/repos/$REPO_SLUG/releases/$release_id"
+    delete_url="https://api.github.com/repos/$GIT_REPO_SLUG/releases/$release_id"
     echo "Delete the release..."
     echo "delete_url: $delete_url"
     curl -XDELETE \
@@ -213,7 +218,7 @@ if [ "$GIT_COMMIT" != "$target_commit_sha" ] ; then
     # if this is a continuous build tag, then delete the old tag
     # in preparation for the new release
     echo "Delete the tag..."
-    delete_url="https://api.github.com/repos/$REPO_SLUG/git/refs/tags/$RELEASE_NAME"
+    delete_url="https://api.github.com/repos/$GIT_REPO_SLUG/git/refs/tags/$RELEASE_NAME"
     echo "delete_url: $delete_url"
     curl -XDELETE \
         --header "Authorization: token ${GITHUB_TOKEN}" \
@@ -237,7 +242,7 @@ if [ "$GIT_COMMIT" != "$target_commit_sha" ] ; then
   fi
 
   release_infos=$(curl -H "Authorization: token ${GITHUB_TOKEN}" \
-       --data '{"tag_name": "'"$RELEASE_NAME"'","target_commitish": "'"$GIT_COMMIT"'","name": "'"$RELEASE_TITLE"'","body": "'"$BODY"'","draft": false,"prerelease": '$is_prerelease'}' "https://api.github.com/repos/$REPO_SLUG/releases")
+       --data '{"tag_name": "'"$RELEASE_NAME"'","target_commitish": "'"$GIT_COMMIT"'","name": "'"$RELEASE_TITLE"'","body": "'"$BODY"'","draft": false,"prerelease": '$is_prerelease'}' "https://api.github.com/repos/$GIT_REPO_SLUG/releases")
 
   echo "$release_infos"
 
