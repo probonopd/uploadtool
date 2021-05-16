@@ -34,6 +34,13 @@ GIT_TAG="$TRAVIS_TAG"
 if [ ! -z "$TRAVIS_REPO_SLUG" ] ; then
   GIT_REPO_SLUG="$TRAVIS_REPO_SLUG"
   RELEASE_BODY="Travis CI build log: ${TRAVIS_BUILD_WEB_URL}"
+elif [ ! -z "$GITHUB_ACTIONS" ] ; then
+  GIT_COMMIT="$GITHUB_SHA"
+  GIT_REPO_SLUG="$GITHUB_REPOSITORY"
+  if [[ "$GITHUB_REF" == "refs/tags/"* ]] ; then
+    GIT_TAG="${GITHUB_REF#refs/tags/}"
+  fi
+  RELEASE_BODY="GitHub Actions build log: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
 fi
 
 if [ ! -z "$UPLOADTOOL_BODY" ] ; then
@@ -170,8 +177,16 @@ if [ ! -z "$TRAVIS_REPO_SLUG" ] ; then
     echo "You can get one from https://github.com/settings/tokens"
     exit 1
   fi
+elif [ ! -z "$GITHUB_ACTIONS" ] ; then
+  echo "Running on GitHub Actions"
+  if [ -z "$GITHUB_TOKEN" ] ; then
+    echo "\$GITHUB_TOKEN missing, please add the following to your run action:"
+    echo "env:"
+    echo "  GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}"
+    exit 1
+  fi
 else
-  echo "Not running on Travis CI"
+  echo "Not running on known CI"
   if [ -z "$GIT_REPO_SLUG" ] ; then
     read -r -p "Repo Slug (GitHub and Travis CI username/reponame): " GIT_REPO_SLUG
   fi
