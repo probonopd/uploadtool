@@ -23,6 +23,19 @@ branches:
     - /^(?i:continuous.*)$/
 ```
 
+It is also possible to use this script with GitHub actions. The `GITHUB_TOKEN` is already available in the main branch but it needs to be passes as an environment variable to the script:
+
+```yaml
+- name: Upload files
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  run: |
+    set -e
+    ls -lh out/* # Assuming you have some files in out/ that you would like to upload
+    wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+    bash upload.sh out/*
+```
+
 ## Environment variables
 
 `upload.sh` normally only creates one stream of continuous releases for the latest commits that are pushed into (or merged into) the repository.
