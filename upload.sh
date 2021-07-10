@@ -136,7 +136,7 @@ fi
 
 # Do not upload non-master branch builds
 # if [ "$GIT_TAG" != "$TRAVIS_BRANCH" ] && [ "$TRAVIS_BRANCH" != "master" ]; then export TRAVIS_EVENT_TYPE=pull_request; fi
-if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] ; then
+if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ] || [ "$GITHUB_EVENT_NAME" == "pull_request" ] ; then
   echo "Release uploading disabled for pull requests"
   if [ "$ARTIFACTORY_BASE_URL" != "" ]; then
     echo "Releases have already been uploaded to Artifactory, exiting"
