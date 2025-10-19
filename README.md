@@ -36,6 +36,8 @@ It is also possible to use this script with GitHub actions. The `GITHUB_TOKEN` i
     bash upload.sh out/*
 ```
 
+In case of "Resource not accessible by integration" (403) errors, may also need `permissions: write-all` at the top of the file.
+
 ## Environment variables
 
 `upload.sh` normally only creates one stream of continuous releases for the latest commits that are pushed into (or merged into) the repository.
