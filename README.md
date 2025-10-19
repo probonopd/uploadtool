@@ -19,7 +19,14 @@ The `GITHUB_TOKEN` is already available in the main branch but it needs to be pa
     bash upload.sh out/*
 ```
 
-In case of "Resource not accessible by integration" (403) errors, may also need `permissions: write-all` at the top of the file.
+In case of "Resource not accessible by integration" (403) errors, may also need
+
+```
+permissions: 
+  contents: write
+```
+
+at the top of the file.
 
 ## Environment variables
 
