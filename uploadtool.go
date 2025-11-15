@@ -270,7 +270,7 @@ func main() {
 	//  release_url=$(echo "$release_infos" | grep '"url":' | head -n 1 | cut -d '"' -f 4 | cut -d '{' -f 1)
 	//  echo "release_url: $release_url"
 
-	// fi # if [ "$TRAVIS_COMMIT" != "$tag_sha" ]
+	// fi # if [ "$TRAVIS_COMMIT" != "$target_commit_sha" ]
 
 	// if [ -z "$release_url" ] ; then
 	// echo "Cannot figure out the release URL for $RELEASE_NAME"
@@ -292,13 +292,13 @@ func main() {
 
 	// $shatool "$@"
 
-	// if [ "$TRAVIS_COMMIT" != "$tag_sha" ] ; then
+	// if [ "$TRAVIS_COMMIT" != "$target_commit_sha" ] ; then
 	//  echo "Publish the release..."
 
 	//  release_infos=$(curl -H "Authorization: token ${GITHUB_TOKEN}" \
 	//       --data '{"draft": false}' "$release_url")
 
 	//  echo "$release_infos"
-	// fi # if [ "$TRAVIS_COMMIT" != "$tag_sha" ]
+	// fi # if [ "$TRAVIS_COMMIT" != "$target_commit_sha" ]
 
 }
